@@ -27,7 +27,7 @@ export default class Button extends Vue {
   icon?: string
 
   get iconUrl(): string {
-    return '/img/icons/' + this.icon + '.svg'
+    return './img/icons/' + this.icon + '.svg'
   }
 }
 </script>

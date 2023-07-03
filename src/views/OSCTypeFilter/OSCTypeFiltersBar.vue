@@ -32,7 +32,7 @@ export default class OSCTypeFiltersBar extends Vue {
     return this.oscCount + " OSC affiché" + (this.oscCount > 1 ? 's' : '')
   }
   get logoPath() {
-    return '/img/logo-crpm.svg'
+    return './img/logo-crpm.svg'
   }
 
   get isOtherFiltersShown() {

@@ -30,7 +30,7 @@ export default class AutocompleteFilter extends Vue {
   icon?: string
 
   get iconUrl(): string {
-    return '/img/icons/' + this.icon + '.svg'
+    return './img/icons/' + this.icon + '.svg'
   }
 }
 </script>

@@ -18,7 +18,7 @@ export default class CopyToClipboard extends Vue {
   copying = false
 
   get iconUrl(): string {
-    return '/img/icons/' + (this.copying ? 'done' : 'mdi-content-copy') + '.svg'
+    return './img/icons/' + (this.copying ? 'done' : 'mdi-content-copy') + '.svg'
   }
 
   copyToClipboard() {
