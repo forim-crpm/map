@@ -92,19 +92,19 @@ export default class Map extends Vue {
 
       &.maplibregl-ctrl-zoom-in {
         .maplibregl-ctrl-icon {
-          background-image: url(/src/assets/img/icons/mdi-plus.svg);
+          background-image: url(/img/icons/mdi-plus.svg);
         }
       }
       &.maplibregl-ctrl-zoom-out {
         order: -1;
         .maplibregl-ctrl-icon {
-          background-image: url(/src/assets/img/icons/mdi-minus.svg);
+          background-image: url(/img/icons/mdi-minus.svg);
         }
       }
 
       &.maplibregl-ctrl-fullscreen, &.maplibregl-ctrl-shrink {
         .maplibregl-ctrl-icon {
-          background-image: url(/src/assets/img/icons/mdi-image-filter-center-focus-strong-outline.svg);
+          background-image: url(/img/icons/mdi-image-filter-center-focus-strong-outline.svg);
         }
       }
     }
