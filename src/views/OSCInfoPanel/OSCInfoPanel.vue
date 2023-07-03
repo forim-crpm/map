@@ -63,7 +63,7 @@ export default class OSCInfoPanel extends Vue {
   }
 
   getIconUrl(icon: string): string {
-    return new URL('/src/assets/img/icons/' + icon + '.svg', import.meta.url).href
+    return '/img/icons/' + icon + '.svg'
   }
 
   closeInfoPanel() {
