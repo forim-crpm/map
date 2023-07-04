@@ -1,14 +1,9 @@
 
 <template>
   <div class="OSCMap">
-    <OSCInfoPanel />
+    <InfoPanel />
     <Map />
-    <Button
-      @click="openInfoPanel"
-      class="OSCMap__aboutBtn"
-      label="À propos du projet"
-      :uppercase="true"
-      :fill="true"
+    <Button @click="openAboutModal" class="OSCMap__aboutBtn" label="À propos du projet" :uppercase="true" :fill="true"
       icon="mdi-information-variant-circle-outline" />
   </div>
 </template>
@@ -18,14 +13,18 @@ import { Vue, Component } from 'vue-facing-decorator'
 import { useAppStore } from '@/stores/app'
 import Map from '@/components/Map.vue'
 import Button from '@/components/Button.vue'
-import OSCInfoPanel from '@/views/OSCInfoPanel/OSCInfoPanel.vue'
+import InfoPanel from '@/views/InfoPanel/InfoPanel.vue'
 
 @Component({
-  components: { Map, Button, OSCInfoPanel }
+  components: { Map, Button, InfoPanel }
 })
 export default class OSCMap extends Vue {
   openInfoPanel() {
     useAppStore().isInfoPanelShown = true
+  }
+
+  openAboutModal() {
+    useAppStore().isAboutModalShown = true
   }
 }
 </script>
@@ -41,7 +40,8 @@ export default class OSCMap extends Vue {
     bottom: 0;
     margin: 1.5rem;
   }
-  .OSCInfoPanel {
+
+  .InfoPanel {
     position: absolute;
     left: 0;
     top: 0;

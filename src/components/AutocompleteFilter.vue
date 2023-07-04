@@ -4,6 +4,7 @@
     <label>{{ label }}</label>
     <v-autocomplete
       id="autocomplete"
+      rounded="xl"
       placeholder="Sélectionner..."
       variant="outlined"
       :items="['California', 'Colorado', 'Florida', 'Georgia', 'Texas', 'Wyoming']"
@@ -55,9 +56,11 @@ export default class AutocompleteFilter extends Vue {
 
     max-height: 2.5rem !important;
     display: flex;
+
     .v-field--focused .v-autocomplete__selection {
       display: none;
     }
+
     .v-field__input {
       --v-input-control-height: 2.5rem;
       align-items: center;

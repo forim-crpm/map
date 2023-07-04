@@ -6,49 +6,49 @@ export const useFilterStore = defineStore('filter', {
     oscTypes: [
       {
         label: "Agence / Organisme public",
-        value: "Agence / Organisme public",
+        value: "agence_org_pub",
         color: "#FFD180",
         isActive: false,
       },
       {
         label: "Association",
-        value: "Association",
+        value: "association",
         color: "#FF9E80",
         isActive: false,
       },
       {
         label: "Collectivité territoriale",
-        value: "Collectivité territoriale",
+        value: "col_ter",
         color: "#FFE57F",
         isActive: false,
       },
       {
         label: "Culturel",
-        value: "Culturel",
+        value: "culturel",
         color: "#FFFF8D",
         isActive: false,
       },
       {
         label: "Entreprise / Syndicat",
-        value: "Entreprise / Syndicat",
+        value: "entreprise_syndicat",
         color: "#DCE775",
         isActive: false,
       },
       {
         label: "ONG internationale",
-        value: "ONG internationale",
+        value: "ong_int",
         color: "#B9F6CA",
         isActive: false,
       },
       {
         label: "OSIM (diaspora)",
-        value: "OSIM (diaspora)",
+        value: "osim",
         color: "#C5E1A5",
         isActive: false,
       },
       {
         label: "Recherche / Apprentissage",
-        value: "Recherche / Apprentissage",
+        value: "recherche_app",
         color: "#E0F2F1",
         isActive: false,
       }

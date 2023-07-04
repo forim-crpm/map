@@ -10,3 +10,35 @@ html, body, #app {
 #app * {
 	font-family: @font-primary;
 }
+
+dialog {
+	display: block;
+	transition: all .3s ease-in;
+
+  &:not([open]) {
+    opacity: 0;
+		transform: translateY(2rem);
+		pointer-events: none;
+  }
+
+  &[open] {
+    opacity: 1;
+		transform: translateY(0);
+  }
+
+  &::after {
+    content: "";
+    position: fixed;
+    inset: 0;
+    width: 200vw;
+    height: 200vh;
+    backdrop-filter: blur(1px);
+    z-index: -1;
+    left: -50vw;
+    top: -50vh;
+  }
+}
+
+.bold {
+	font-weight: 600;
+}
