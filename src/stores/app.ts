@@ -2,7 +2,7 @@ import { defineStore } from 'pinia'
 
 export const useAppStore = defineStore('app', {
   state: () => ({
-    isAboutModalShown: true,
+    isAboutModalShown: false,
     isInfoPanelShown: true,
     isOtherFiltersShown: false,
   }),

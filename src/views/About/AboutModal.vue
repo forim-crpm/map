@@ -30,7 +30,7 @@
           <div class="AboutModal__partnersCtn">
             <a :href="partner.link" target="_blank" rel="noopener noreferrer" v-for="(partner, i) in actor.partners"
               :key="i">
-              <img :src="'/img/logos/' + partner.logo" :alt="partner.name + ' logo'">
+              <img :src="'./img/logos/' + partner.logo" :alt="partner.name + ' logo'">
             </a>
           </div>
         </div>
