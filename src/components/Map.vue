@@ -132,7 +132,7 @@ export default class Map extends Vue {
 
       Promise.all(
         useFilterStore().oscTypes.map((oscType: OSCType) => new Promise<void>((resolve, reject) => {
-          this.map.loadImage(`/img/pins/pin_${oscType.value}.png`, (error: any, res: any) => {
+          this.map.loadImage(`./img/pins/pin_${oscType.value}.png`, (error: any, res: any) => {
             this.map.addImage(`${oscType.value}-marker`, res);
             resolve();
           })
