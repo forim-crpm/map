@@ -7,15 +7,16 @@ import maplibregl from "maplibre-gl";
 import "maplibre-gl/dist/maplibre-gl.css";
 import { Vue, Component, Watch } from 'vue-facing-decorator'
 import { useAppStore } from '@/stores/app';
-import { useFilterStore } from '@/stores/filters';
-import type OSCType from "@/model/interfaces/OSCType";
+import MapService from "@/services/MapService";
+import { useAssociationStore } from "@/stores/associations";
 
 @Component({})
 export default class Map extends Vue {
   map: any = null
 
   layers = {
-    OSC: 'osc'
+    ASSOC: 'association',
+    UNCLUSTERED_POINT: 'unclustered-point'
   }
 
   async mounted() {
@@ -40,13 +41,14 @@ export default class Map extends Vue {
     if (body !== null) {
       this.map.addControl(new maplibregl.FullscreenControl({ container: body }));
     }
-    this.map.on('load', () => {
-      this.initMap()
-    })
   }
 
   get isInfoPanelShown() {
     return useAppStore().isInfoPanelShown;
+  }
+
+  get associations() {
+    return useAssociationStore().associations;
   }
 
   get padding() {
@@ -67,6 +69,11 @@ export default class Map extends Vue {
     this.setMapPadding()
   }
 
+  @Watch("associations")
+  associationsWatcher() {
+    this.updateOscMap()
+  }
+
   initMap() {
     this.updateOscMap()
   }
@@ -74,28 +81,29 @@ export default class Map extends Vue {
   updateOscMap() {
     this.addOscSource()
     this.addOscLayer()
+    this.addTooltipOnHover()
+    this.updateAssociationOnClick()
   }
 
   addOscSource() {
-    if (!this.map.getSource(this.layers.OSC)) {
-      // let data = MapService.getGeoJSON()
-      let data = 'https://maplibre.org/maplibre-gl-js-docs/assets/earthquakes.geojson'
-      this.map.addSource(this.layers.OSC, {
+    if (!this.map.getSource(this.layers.ASSOC)) {
+      let data = MapService.getGeoJSON()
+      this.map.addSource(this.layers.ASSOC, {
         type: 'geojson',
         data: data,
         cluster: true,
-        clusterMaxZoom: 14,
+        clusterMaxZoom: 13,
         clusterRadius: 50
       })
     }
   }
 
   addOscLayer() {
-    if (this.map.getLayer(this.layers.OSC) === undefined) {
+    if (this.map.getLayer(this.layers.ASSOC) === undefined) {
       this.map.addLayer({
-        id: this.layers.OSC + '-clusters-bg',
+        id: this.layers.ASSOC + '-clusters-bg',
         type: 'circle',
-        source: this.layers.OSC,
+        source: this.layers.ASSOC,
         filter: ['has', 'point_count'],
         paint: {
           'circle-color': '#2B5B39',
@@ -105,9 +113,9 @@ export default class Map extends Vue {
       });
 
       this.map.addLayer({
-        id: this.layers.OSC + '-clusters',
+        id: this.layers.ASSOC + '-clusters',
         type: 'circle',
-        source: this.layers.OSC,
+        source: this.layers.ASSOC,
         filter: ['has', 'point_count'],
         paint: {
           'circle-color': '#2B5B39',
@@ -116,9 +124,9 @@ export default class Map extends Vue {
       });
 
       this.map.addLayer({
-        id: this.layers.OSC + '-cluster-count',
+        id: this.layers.ASSOC + '-cluster-count',
         type: 'symbol',
-        source: this.layers.OSC,
+        source: this.layers.ASSOC,
         filter: ['has', 'point_count'],
         layout: {
           'text-field': '{point_count_abbreviated}',
@@ -130,30 +138,116 @@ export default class Map extends Vue {
         }
       });
 
-      Promise.all(
-        useFilterStore().oscTypes.map((oscType: OSCType) => new Promise<void>((resolve, reject) => {
-          this.map.loadImage(`./img/pins/pin_${oscType.value}.png`, (error: any, res: any) => {
-            this.map.addImage(`${oscType.value}-marker`, res);
-            resolve();
-          })
-        }))
-      ).then(() => {
-        useFilterStore().oscTypes.forEach((oscType, key) => {
-          this.map.addLayer({
-            id: oscType.value + '-unclustered-point',
-            type: 'symbol',
-            source: this.layers.OSC,
-            filter: ['!', ['has', 'point_count']],
-            layout: {
-              'icon-image': `${oscType.value}-marker`,
-              'icon-anchor': 'bottom',
-              // 'icon-rotate': key * 15,
-              'icon-allow-overlap': true,
-            }
-          });
-        })
+      this.map.loadImage(`./img/pins/pin_osim.png`, (error: any, res: any) => {
+        if (error) throw error;
+        this.map.addImage(`marker`, res);
+        this.map.addLayer({
+          id: this.layers.UNCLUSTERED_POINT,
+          type: 'symbol',
+          source: this.layers.ASSOC,
+          filter: ['!', ['has', 'point_count']],
+          layout: {
+            'icon-image': `marker`,
+            // 'icon-anchor': 'bottom',
+            // 'icon-rotate': key * 15,
+            'icon-allow-overlap': true,
+            'text-field': ["step", ["zoom"], "", 8.5, ['get', 'name']],
+            'text-variable-anchor': ['top', 'bottom', 'left', 'right'],
+            'text-radial-offset': 1.8,
+            'text-size': 12,
+            'text-justify': 'auto',
+            'text-font': ["Arial Unicode MS Regular", "Open Sans Regular"]
+          },
+          paint: {
+            'text-halo-width': 2,
+            'text-halo-color': '#fff',
+          }
+        });
       })
+    //   Promise.all(
+    //     useFilterStore().oscTypes.map((oscType: OSCType) => new Promise<void>((resolve, reject) => {
+    //       this.map.loadImage(`./img/pins/pin_${oscType.value}.png`, (error: any, res: any) => {
+    //         this.map.addImage(`${oscType.value}-marker`, res);
+    //         resolve();
+    //       })
+    //     }))
+    //   ).then(() => {
+    //     useFilterStore().oscTypes.forEach((oscType, key) => {
+    //       this.map.addLayer({
+    //         id: oscType.value + '-unclustered-point',
+    //         type: 'symbol',
+    //         source: this.layers.ASSOC,
+    //         filter: ['!', ['has', 'point_count']],
+    //         layout: {
+    //           'icon-image': `${oscType.value}-marker`,
+    //           'icon-anchor': 'bottom',
+    //           // 'icon-rotate': key * 15,
+    //           'icon-allow-overlap': true,
+    //         }
+    //       });
+    //     })
+    //   })
+    // }
     }
+  }
+
+  updateAssociationOnClick() {
+    this.map.on('click', this.layers.UNCLUSTERED_POINT, (e: any) => {
+      console.log(e.features[0].properties.id)
+      useAssociationStore().activeAssociationId = e.features[0].properties.id;
+
+      const currentZoom = this.map.getZoom()
+      const neededZoom = 9
+      this.map.flyTo({
+        center: e.features[0].geometry.coordinates,
+        zoom: currentZoom < neededZoom ? neededZoom : currentZoom,
+        bearing: 0,
+        speed: 3,
+        curve: 1,
+        easing: function (t: any) {
+          return t;
+        },
+        essential: true
+      });
+    })
+  }
+
+  addPulseOnActivePoint() {
+    this.map.addLayer({
+      id: 'layer-with-pulsing-dot',
+      type: 'symbol',
+      source: 'dot-point',
+      layout: {
+        'icon-image': 'pulsing-dot'
+      }
+    });
+  }
+
+  addTooltipOnHover() {
+
+    const popup = new maplibregl.Popup({
+      closeButton: false,
+      closeOnClick: false
+    });
+
+    this.map.on('mouseenter', this.layers.UNCLUSTERED_POINT, (e: any) => {
+      this.map.getCanvas().style.cursor = 'pointer';
+
+      var coordinates = e.features[0].geometry.coordinates.slice();
+      var associationName = e.features[0].properties.name;
+
+      while (Math.abs(e.lngLat.lng - coordinates[0]) > 180) {
+        coordinates[0] += e.lngLat.lng > coordinates[0] ? 360 : -360;
+      }
+
+      popup.setLngLat(coordinates).setHTML(associationName).addTo(this.map);
+      popup.addClassName('show');
+    });
+
+    this.map.on('mouseleave', this.layers.UNCLUSTERED_POINT, () => {
+      this.map.getCanvas().style.cursor = '';
+      popup.removeClassName('show');
+    });
   }
 }
 </script>
@@ -165,6 +259,33 @@ export default class Map extends Vue {
   bottom: 0;
   width: 100%;
   height: 100%;
+
+  .maplibregl-popup {
+    top: -1.5rem;
+    transition: opacity .15s ease-in;
+    opacity: 0;
+    pointer-events: none;
+
+    &.show {
+      opacity: 1;
+    }
+  }
+  .maplibregl-popup-content {
+    background: @color-primary;
+    pointer-events: none;
+    color: white;
+    padding: .75rem 1rem;
+    font-size: @font-s;
+    font-family: @font-secondary;
+    font-weight: 400;
+    line-height: 1.375rem;
+    max-width: 18.5rem; 
+    width: fit-content;
+  }
+
+  .maplibregl-popup-tip {
+    display: none;
+  }
 
   .maplibregl-ctrl-top-right {
     margin: 1.5rem;
@@ -212,4 +333,5 @@ export default class Map extends Vue {
       }
     }
   }
-}</style>
+}
+</style>

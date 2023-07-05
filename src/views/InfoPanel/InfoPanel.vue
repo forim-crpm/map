@@ -1,70 +1,83 @@
 
 <template>
-  <div class="InfoPanel" :shown="isInfoPanelShown">
+  <div class="InfoPanel" :shown="isInfoPanelShown && association != null" v-if="association != null">
     <img class="InfoPanel__closeIcon" :src="getIconUrl('mdi-window-close')" alt="Fermer le panneau"
       @click="closeInfoPanel">
     <div class="InfoPanel__head">
-      <h1>Nom de l'association</h1>
-      <a href="" target="_blank">site-internet.com <img :src="getIconUrl('mdi-open-in-new')" alt="Nouvel onglet"></a>
+      <h1>{{ association.name }}</h1>
+      <a v-if="association.websiteUrl" :href="association.websiteUrl" target="_blank">
+        {{ association.websiteUrl }}
+        <img :src="getIconUrl('mdi-open-in-new')" alt="Nouvel onglet">
+      </a>
     </div>
-    <div class="InfoPanel__email">
-      <CopyToClipboard label="mail@site-internet.com" />
+    <div class="InfoPanel__email" v-if="association.emails && association.emails.length && association.emails[0] != ''">
+      <CopyToClipboard :label="association.emails[0]" />
     </div>
     <div class="InfoPanel__statusCtn">
-      <h2>Statut de l'association</h2>
+      <h2 v-if="association.status">{{ association.status }}</h2>
       <div class="InfoPanel__statusRow">
-        <span class="InfoPanel__creationDate">Créée en 1968</span>
-        <span class="InfoPanel__cost">200 000 €</span>
+        <span class="InfoPanel__creationDate" v-if="association.year">Créée en {{ association.year }}</span>
+        <span class="InfoPanel__cost" v-if="association.budget">{{ association.budget }}</span>
       </div>
     </div>
     <div class="InfoPanel__divider"></div>
     <div class="InfoPanel__descCtn">
-      <div class="InfoPanel__descItem">
+      <div class="InfoPanel__descItem" v-if="association.intervention">
         <h2>Échelle territoriale d’intervention</h2>
-        <span>Lorem ipsum</span>
+        <span>{{ association.intervention }}</span>
       </div>
-      <div class="InfoPanel__descItem">
+      <div class="InfoPanel__descItem" v-if="association.dialog">
         <h2>Niveau de dialogue institutionnel</h2>
-        <span>Lorem ipsum</span>
+        <span>{{ association.dialog }}</span>
       </div>
-      <div class="InfoPanel__descItem">
+      <div class="InfoPanel__descItem" v-if="association.thematics.length">
         <h2>Thématiques d’intervention</h2>
         <ul>
-          <li>Cohésion sociale et vivre ensemble, lutte contre les discriminations</li>
-          <li>Droit et Protection de Migrants</li>
-          <li>Education et santé</li>
-          <li>Enfants et migration</li>
+          <li v-for="(thematic, key) in association.thematics" :key="key">{{ getThematic(thematic) }}</li>
         </ul>
       </div>
     </div>
     <div class="InfoPanel__divider"></div>
-    <div class="InfoPanel__location">
+    <div class="InfoPanel__location" v-if="association.adress">
       <img :src="getIconUrl('map-marker')" alt="Localisation icon">
-      <ul>
-        <li>adresse postale</li>
-        <li>adresse postale</li>
-        <li>adresse postale</li>
-      </ul>
+      <span>{{ association.adress }}</span>
     </div>
   </div>
 </template>
 
 <script lang="ts">
-import { Vue, Component } from 'vue-facing-decorator'
+import { Vue, Component, Watch } from 'vue-facing-decorator'
 import { useAppStore } from '@/stores/app'
 import CopyToClipboard from '@/components/CopyToClipboard.vue'
+import { useAssociationStore } from '@/stores/associations';
+import { useFilterStore } from '@/stores/filters';
+import type Association from '@/model/interfaces/Association';
+import type Thematic from '@/model/interfaces/Thematic';
 
 @Component({
   components: { CopyToClipboard }
 })
 export default class InfoPanel extends Vue {
 
+  @Watch("association")
+  associationWatcher() {
+    useAppStore().isInfoPanelShown = true
+  }
+
   get isInfoPanelShown() {
     return useAppStore().isInfoPanelShown;
   }
 
+  get association(): Association|null {
+    return useAssociationStore().activeAssociation;
+  }
+
   getIconUrl(icon: string): string {
     return './img/icons/' + icon + '.svg'
+  }
+
+  getThematic(thematicKey: Thematic['value']): Thematic['label']|null {
+    return useFilterStore().getThematicName(thematicKey)
   }
 
   closeInfoPanel() {
@@ -166,7 +179,9 @@ export default class InfoPanel extends Vue {
         letter-spacing: 0.01563rem;
         opacity: 0.7;
       }
-
+      span {
+        line-height: 1.5rem;
+      }
       ul {
         display: flex;
         flex-flow: column nowrap;
@@ -192,10 +207,11 @@ export default class InfoPanel extends Vue {
       width: 1.5rem;
     }
 
-    li {
+    span {
       font-size: @font-s;
       font-family: @font-secondary;
-      line-height: 1.25rem;
+      line-height: 1.5rem;
+      white-space: pre-line;
     }
   }
 

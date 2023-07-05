@@ -1,29 +1,26 @@
+import type Association from "@/model/interfaces/Association";
+import { useAssociationStore } from "@/stores/associations";
 
 export default class MapService {
 
   static getGeoJSON(): Object {
-    // const geojson = [];
-    // Array.prototype.forEach.call(this.$store.state.submissions , function(line) {
-    //   geojson.push({
-    //     'properties': {
-    //       'id': line.id,
-    //       '_submission_time': line._submission_time,
-    //       'icon': line.icon,
-    //       'label': line.label,
-    //       'type_en': line.type.en,
-    //       'type_fr': line.type.fr,
-    //       'image': line.image,
-    //     },
-    //     'geometry': {
-    //     'type': 'Point',
-    //     'coordinates': line.coords
-    //     }
-    //   })
-    // })
+    const geojson: any = [];
+    Array.prototype.forEach.call(useAssociationStore().associations , (association: Association) => {
+      geojson.push({
+        'properties': {
+          'id': association.id,
+          'name': association.name,
+        },
+        'geometry': {
+          'type': 'Point',
+          'coordinates': [association.coords.y , association.coords.x]
+        }
+      })
+    })
 
     return {
       'type': 'FeatureCollection',
-      'features': []
+      'features': geojson
     };
   }
 }

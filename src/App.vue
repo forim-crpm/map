@@ -1,10 +1,3 @@
-<script setup lang="ts">
-import OSCMap from '@/views/OSCMap/OSCMap.vue'
-import OSCTypeFiltersBar from '@/views/OSCTypeFilter/OSCTypeFiltersBar.vue'
-import OSCOtherFiltersBar from '@/views/OSCOtherFilter/OSCOtherFiltersBar.vue'
-import AboutModal from '@/views/About/AboutModal.vue'
-</script>
-
 <template>
   <div class="App">
     <OSCTypeFiltersBar class="App__ctn App__ctn--left" />
@@ -15,6 +8,30 @@ import AboutModal from '@/views/About/AboutModal.vue'
     <AboutModal />
   </div>
 </template>
+
+<script lang="ts">
+import { Vue, Component } from 'vue-facing-decorator'
+import { useAssociationStore } from '@/stores/associations'
+import OSCMap from '@/views/OSCMap/OSCMap.vue'
+import OSCTypeFiltersBar from '@/views/OSCTypeFilter/OSCTypeFiltersBar.vue'
+import OSCOtherFiltersBar from '@/views/OSCOtherFilter/OSCOtherFiltersBar.vue'
+import AboutModal from '@/views/About/AboutModal.vue'
+import AssociationService from '@/services/AssociationService'
+
+import type Association from '@/model/interfaces/Association'
+
+@Component({
+  components: { OSCMap, OSCTypeFiltersBar, OSCOtherFiltersBar, AboutModal }
+})
+export default class App extends Vue {
+  
+  async mounted() {
+    const associations: Association[] = await AssociationService.readAssociationDb();
+    useAssociationStore().associations = associations;
+  }
+}
+
+</script>
 
 <style lang="less">
 @import '@/assets/less/main.less';
