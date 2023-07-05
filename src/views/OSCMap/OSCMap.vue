@@ -3,8 +3,7 @@
   <div class="OSCMap">
     <InfoPanel />
     <Map />
-    <Button @click="openAboutModal" class="OSCMap__aboutBtn" label="À propos du projet" :uppercase="true" :fill="true"
-      icon="mdi-information-variant-circle-outline" />
+    <Button label="Renseigner une association" class="OSCMap__newAssocBtn" :uppercase="true" icon="mdi-add" :fill="true" />
   </div>
 </template>
 
@@ -22,10 +21,6 @@ export default class OSCMap extends Vue {
   openInfoPanel() {
     useAppStore().isInfoPanelShown = true
   }
-
-  openAboutModal() {
-    useAppStore().isAboutModalShown = true
-  }
 }
 </script>
 
@@ -34,7 +29,7 @@ export default class OSCMap extends Vue {
   position: relative;
   overflow: hidden;
 
-  .OSCMap__aboutBtn {
+  .OSCMap__newAssocBtn {
     position: absolute;
     right: 0;
     bottom: 0;

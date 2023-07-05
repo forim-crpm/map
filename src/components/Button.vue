@@ -49,7 +49,7 @@ export default class Button extends Vue {
   transition: border-width .15s ease-in;;
 
   img {
-    height: 65%;
+    max-height: 65%;
   }
 
   span {

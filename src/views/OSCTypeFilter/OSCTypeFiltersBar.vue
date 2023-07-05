@@ -10,7 +10,8 @@
     <div class="OSCTypeFiltersBar__ctn">
       <div class="OSCTypeFiltersBar__divider"></div>
       <img :src="logoPath" alt="Logo CRPM"  class="OSCTypeFiltersBar__crpmLogo">
-      <Button label="Téléchargements" :uppercase="true" icon="mdi-download-circle-outline" />
+      <Button @click="openAboutModal" class="OSCMap__aboutBtn" label="À propos du projet" :uppercase="true"
+        icon="mdi-information-variant-circle-outline" />
     </div>
   </div>
 </template>
@@ -41,6 +42,10 @@ export default class OSCTypeFiltersBar extends Vue {
 
   toggleOtherFiltersBar() {
     useAppStore().isOtherFiltersShown = !this.isOtherFiltersShown
+  }
+
+  openAboutModal() {
+    useAppStore().isAboutModalShown = true
   }
 }
 </script>
