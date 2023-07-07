@@ -6,6 +6,7 @@
       <OSCMap />
     </div>
     <AboutModal />
+    <RedirectionConfirmModal />
   </v-app>
 </template>
 
@@ -17,12 +18,13 @@ import OSCMap from '@/views/OSCMap/OSCMap.vue'
 import AssociationBar from '@/views/AssociationBar/AssociationBar.vue'
 import FiltersBar from '@/views/FiltersBar/FiltersBar.vue'
 import AboutModal from '@/views/About/AboutModal.vue'
+import RedirectionConfirmModal from '@/views/Contribution/RedirectionConfirmModal.vue'
 import AssociationService from '@/services/AssociationService'
 
 import type Association from '@/model/interfaces/Association'
 
 @Component({
-  components: { OSCMap, AssociationBar, FiltersBar, AboutModal }
+  components: { OSCMap, AssociationBar, FiltersBar, AboutModal, RedirectionConfirmModal }
 })
 export default class App extends Vue {
   

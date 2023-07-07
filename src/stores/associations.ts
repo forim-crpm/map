@@ -19,7 +19,8 @@ export const useAssociationStore = defineStore('associations', {
 
       // Filter by thematics
       if (useFilterStore().thematicsFilter.length) {
-        associations = associations.filter((a: Association) => useFilterStore().thematicsFilter.includes(a.thematics))
+        associations = associations
+        // .filter((a: Association) => useFilterStore().thematicsFilter.includes(a.thematics))
       }
 
       // Filter by search

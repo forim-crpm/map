@@ -3,7 +3,13 @@
   <div class="OSCMap" :info-panel-shown="isInfoPanelShown">
     <InfoPanel />
     <Map />
-    <Button label="Renseigner une association" class="OSCMap__newAssocBtn" :uppercase="true" icon="mdi-add" :fill="true" />
+    <Button
+      label="Renseigner une association"
+      class="OSCMap__newAssocBtn"
+      :uppercase="true"
+      icon="mdi-add"
+      :fill="true"
+      @click="openRedirectionModal"/>
   </div>
 </template>
 
@@ -20,6 +26,10 @@ import InfoPanel from '@/views/InfoPanel/InfoPanel.vue'
 export default class OSCMap extends Vue {
   openInfoPanel() {
     useAppStore().isInfoPanelShown = true
+  }
+
+  openRedirectionModal() {
+    useAppStore().isRedirectionModalShown = true
   }
   
   get isInfoPanelShown() {

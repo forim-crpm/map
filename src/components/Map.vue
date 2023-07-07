@@ -161,7 +161,9 @@ export default class Map extends Vue {
         data: data,
         cluster: true,
         clusterMaxZoom: 11,
-        clusterRadius: 50
+        clusterRadius: 50,
+        
+        attribution: 'Developped by <b><a href="https://cartong.org" target="_blank">CartONG</a></b>'
       })
     }
   }
@@ -302,7 +304,10 @@ export default class Map extends Vue {
   bottom: 0;
   width: 100%;
   height: 100%;
-
+  .maplibregl-ctrl-bottom-right {
+    z-index: 0;
+    font-family: @font-secondary;
+  }
   .maplibregl-popup {
     top: -1.5rem;
     transition: opacity .15s ease-in;
