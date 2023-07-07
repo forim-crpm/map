@@ -36,6 +36,10 @@ import type Association from '@/model/interfaces/Association'
 export default class AssociationBar extends Vue {
   
   get associations(): Association[] {
+    return useAssociationStore().associations
+  }
+
+  get filteredAssociations(): Association[] {
     return useAssociationStore().filteredAssociations
   }
 
@@ -43,8 +47,12 @@ export default class AssociationBar extends Vue {
     return this.associations.length
   }
 
+  get filteredAssociationsCount(): number {
+    return this.filteredAssociations.length
+  }
+
   get associationsCountLabel(): string {
-    return this.associationsCount + " association" + (this.associationsCount > 1 ? 's' : '')
+    return this.filteredAssociationsCount + " association" + (this.filteredAssociationsCount > 1 ? 's' : '') + " sur " + this.associationsCount
   }
 
   get logoPath() {

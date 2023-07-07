@@ -5,11 +5,11 @@
       <h1>Référencer une association</h1>
     </div>
     <div class="Modal__content">
-      <p>Pour adresser votre demande de référencement, lorem ipsum</p>
+      <p>Si vous souhaitez signaler une nouvelle association ou mettre à jour les informations affichées sur la carte, merci de remplir le questionnaire en ligne. Veillez à bien renseigner le numéro de téléphone et l’adresse électronique : nous vous recontacterons avant la mise en ligne des informations.</p>
     </div>
     <div class="Modal__footer">
       <button @click="close()">Annuler</button>
-      <a href="" target="_blank">Accéder</a>
+      <a href="https://ee.kobotoolbox.org/x/1a1GtPyH" target="_blank">Accéder</a>
     </div>
   </dialog>
 </template>
@@ -68,86 +68,16 @@ export default class RedirectionConfirmModal extends Vue {
     display: flex;
     flex-flow: row nowrap;
     flex: 1 0 auto;
-    padding: 1.5rem 1rem 2rem 1.5rem;
-    // border-top: @mixin-divider-border;
+    padding: 1.5rem 1rem 1.5rem 1.5rem;
+    border-top: @mixin-divider-border;
     border-bottom: @mixin-divider-border;
 
-    .Modal__ctn {
-
-      &--right {
-        max-width: 33rem;
-
-        .Modal__titles {
-          display: flex;
-          padding: 1.5rem 1rem 2rem 1.5rem;
-          flex-direction: column;
-          align-items: flex-start;
-          gap: 0.5rem;
-
-          h2 {
-            font-size: @font-m;
-            font-weight: 700;
-            line-height: 2rem;
-            color: @color-primary;
-          }
-
-          h3 {
-            font-size: @font-s;
-            font-weight: 600;
-            line-height: 1.375rem;
-          }
-        }
-
-        .Modal__contentDesc {
-          display: flex;
-          padding: 0rem 1rem 1rem 1.5rem;
-          flex-direction: column;
-          align-items: flex-start;
-          gap: 0.5rem;
-
-          p {
-            font-family: @font-secondary;
-            color: @color-grey-3;
-            font-size: 0.875rem;
-            line-height: 1.375rem;
-            letter-spacing: 0.00625rem;
-          }
-        }
-      }
-
-      &--left {
-        display: flex;
-        padding: 4.0625rem 1rem 2rem 3.5rem;
-        flex-direction: column;
-        align-items: flex-start;
-        gap: 2rem;
-        flex: 1 0 0;
-        align-self: stretch;
-        border-left: @mixin-divider-border;
-
-        .Modal__actorsCtn {
-          display: flex;
-          flex-direction: column;
-          align-items: flex-start;
-          gap: 0.75rem;
-          align-self: stretch;
-
-          h3 {
-            color: @color-black-faded-3;
-            font-size: @font-s;
-            font-family: @font-secondary;
-            line-height: 1.375rem;
-            letter-spacing: 0.00625rem;
-          }
-
-          .Modal__partnersCtn {
-            display: flex;
-            flex-flow: row nowrap;
-            align-items: center;
-            gap: 2rem;
-          }
-        }
-      }
+    p {
+      font-family: @font-secondary;
+      color: @color-grey-3;
+      font-size: 0.875rem;
+      line-height: 1.375rem;
+      letter-spacing: 0.00625rem;
     }
   }
 

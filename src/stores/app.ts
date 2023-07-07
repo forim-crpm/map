@@ -5,7 +5,7 @@ export const useAppStore = defineStore('app', {
     isAboutModalShown: false,
     isRedirectionModalShown: false,
     isInfoPanelShown: false,
-    isFiltersBarShown: false,
+    isFiltersBarShown: false
   }),
 
   getters: {

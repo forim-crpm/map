@@ -6,7 +6,7 @@ export default class MapService {
 
   static getGeoJSON(): any {
     const geojson: any = [];
-    Array.prototype.forEach.call(useAssociationStore().associations , (association: Association) => {
+    Array.prototype.forEach.call(useAssociationStore().filteredAssociationsWithoutMapFilter , (association: Association) => {
       geojson.push({
         'id': association.id,
         'properties': {

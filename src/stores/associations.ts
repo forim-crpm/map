@@ -1,6 +1,7 @@
 import { defineStore } from 'pinia'
 import type Association from '@/model/interfaces/Association'
 import { useFilterStore } from './filters';
+import { useAppStore } from './app';
 
 export const useAssociationStore = defineStore('associations', {
   state: () => ({
@@ -9,7 +10,8 @@ export const useAssociationStore = defineStore('associations', {
   }),
 
   getters: {
-    filteredAssociations: (state): Association[] => {
+    filteredAssociationsWithoutMapFilter: (state): Association[] => {
+      
       let associations = state.associations
 
       // Filter by countries
@@ -42,6 +44,12 @@ export const useAssociationStore = defineStore('associations', {
         associations = results
       }
 
+      return associations;
+    },
+
+    filteredAssociations(): Association[] {
+      let associations = this.filteredAssociationsWithoutMapFilter
+
       // Filter by map extent
       if (useFilterStore().isMapSynced) {
         associations = associations.filter((association: Association) => {
@@ -49,7 +57,7 @@ export const useAssociationStore = defineStore('associations', {
         })
       }
 
-      return associations.sort((a, b) => a.name.localeCompare(b.name));
+      return associations.sort((a: Association, b: Association) => a.name.localeCompare(b.name));
     },
     activeAssociation: (state): Association|null => {
       return state.associations.find(association => association.id === state.activeAssociationId) ?? null

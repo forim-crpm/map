@@ -47,6 +47,8 @@ export default class Map extends Vue {
     if (body !== null) {
       this.map.addControl(new maplibregl.FullscreenControl({ container: body }));
     }
+
+    this.initMapSyncFilter()
   }
 
   get isInfoPanelShown(): boolean {
@@ -59,6 +61,10 @@ export default class Map extends Vue {
 
   get filteredAssociations(): Association[] {
     return useAssociationStore().filteredAssociations;
+  }
+
+  get filteredAssociationsId(): Association['id'][] {
+    return this.filteredAssociations.map((association: Association) => association.id);
   }
 
   get activeAssociationId(): Association['id']|null {
@@ -100,37 +106,39 @@ export default class Map extends Vue {
 
   @Watch("associations")
   associationsWatcher() {
-    
     this.updateOscMap()
-    
-    if (useFilterStore().isMapSynced) {
-      console.log("deokdoekdoke")
-      this.initMapSyncFilter()
-    }
+  }
+
+  @Watch("filteredAssociations")
+  filteredAssociationsWatcher() {
+    this.addOscSource()
   }
 
   initMapSyncFilter() {
     this.map.on('moveend', async () => {
-      const features = this.map.queryRenderedFeatures({ layers: [this.layers.UNCLUSTERED_POINT, this.layers.ASSOC + '-clusters'] });
-      const source = this.map.getSource(this.layers.ASSOC)
-      let associations: Association['id'][] = []
-      await features.forEach(async (feature: any) => {
-        const clusterId = feature.properties.cluster_id
-        const pointCount = feature.properties.point_count
-        if (clusterId !== undefined) {
-          await source.getClusterLeaves(clusterId, pointCount, 0, (err: any, clusterFeatures: any) => {
-            let associationIds = clusterFeatures.map((feature: any) => feature.id)
-            associations.push(...associationIds)
-          })
-        } else {
-          await associations.push(feature.id)
-        }
-      })
+      if (this.map.getLayer(this.layers.UNCLUSTERED_POINT) !== undefined) {
 
-      // Buggy
-      setTimeout(() => {
-        return useFilterStore().mapShownAssociations = associations
-      }, 200)
+        const features = this.map.queryRenderedFeatures({ layers: [this.layers.UNCLUSTERED_POINT, this.layers.ASSOC + '-clusters'] });
+        const source = this.map.getSource(this.layers.ASSOC)
+        let associations: Association['id'][] = []
+        await features.forEach(async (feature: any) => {
+          const clusterId = feature.properties.cluster_id
+          const pointCount = feature.properties.point_count
+          if (clusterId !== undefined) {
+            await source.getClusterLeaves(clusterId, pointCount, 0, (err: any, clusterFeatures: any) => {
+              let associationIds = clusterFeatures.map((feature: any) => feature.id)
+              associations.push(...associationIds)
+            })
+          } else {
+            await associations.push(feature.id)
+          }
+        })
+  
+        // Buggy
+        setTimeout(() => {
+          return useFilterStore().mapShownAssociations = associations
+        }, 200)
+      }
     })
   }
 
@@ -147,24 +155,22 @@ export default class Map extends Vue {
   }
 
   get geojson(): any {
-    if (this.geojsonData === null) {
-      this.geojsonData = MapService.getGeoJSON()
-    }
-    return this.geojsonData
+    return MapService.getGeoJSON()
   }
 
   addOscSource() {
+    let data = this.geojson
     if (!this.map.getSource(this.layers.ASSOC)) {
-      let data = this.geojson
       this.map.addSource(this.layers.ASSOC, {
         type: 'geojson',
         data: data,
         cluster: true,
         clusterMaxZoom: 11,
         clusterRadius: 50,
-        
         attribution: 'Developped by <b><a href="https://cartong.org" target="_blank">CartONG</a></b>'
       })
+    } else {
+      this.map.getSource(this.layers.ASSOC).setData(this.geojson)
     }
   }
 
@@ -226,7 +232,6 @@ export default class Map extends Vue {
             'text-font': ["Arial Unicode MS Regular", "Open Sans Regular"]
           },
           paint: {
-            'icon-opacity': ["case", ['!', ['has', 'point_count']], 1, 0],
             'text-halo-width': 2,
             'text-halo-color': '#fff',
           }
