@@ -3,8 +3,8 @@
   <div class="FiltersBar" :shown="isShown" v-if="isShown">
     <Button label="Réinitialiser" uppercase="true" small="true"  class="FiltersBar__resetBtn" @click="resetFilters" />
     <div class="FiltersBar__filtersCtn">
-      <AutocompleteFilter label="Pays" :data="countries" @on-selected="countries => updateCountries(countries)"/>
-      <AutocompleteFilter label="Thématique" :data="thematics" @on-selected="thematics => updateThematics(thematics)"/>
+      <AutocompleteFilter label="Pays" :data="countries" @on-selected="(countries: any) => updateCountries(countries)"/>
+      <AutocompleteFilter label="Thématique" :data="thematics" @on-selected="(thematics: any) => updateThematics(thematics)"/>
     </div>
   </div>
 </template>
