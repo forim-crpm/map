@@ -33,7 +33,8 @@ export default class AssociationService {
 
       return {
         id: key,
-        updated_at: association.maj ?? null,
+        updatedAt: association.maj ?? null,
+        country: association.pays ?? null,
         coords: {
           x: parseFloat(association.coordo_x.replace(',','.')) ?? null,
           y: parseFloat(association.coordo_y.replace(',','.')) ?? null,
@@ -42,7 +43,7 @@ export default class AssociationService {
         adress: association.adresse ?? null,
         indic: association.indic ?? null,
         tel: association.numero ?? null,
-        tel_other: association.autre_numero ?? null,
+        telOther: association.autre_numero ?? null,
         emails: association.email.split(";").map((email: string) => email.trim()) ?? [],
         websiteUrl: association.internet ?? null,
         status: association.statut ?? null,

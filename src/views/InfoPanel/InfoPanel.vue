@@ -1,7 +1,7 @@
 
 <template>
   <div class="InfoPanel" :shown="isInfoPanelShown && association != null" v-if="association != null">
-    <img class="InfoPanel__closeIcon" :src="getIconUrl('mdi-window-close')" alt="Fermer le panneau"
+    <img class="InfoPanel__closeIcon" :src="getIconUrl('mdi-window-close-white')" alt="Fermer le panneau"
       @click="closeInfoPanel">
     <div class="InfoPanel__head">
       <h1>{{ association.name }}</h1>
@@ -27,7 +27,7 @@
         <span>{{ association.intervention }}</span>
       </div>
       <div class="InfoPanel__descItem" v-if="association.dialog">
-        <h2>Niveau de dialogue institutionnel</h2>
+        <h2>Liens et dialogue avec des institutions</h2>
         <span>{{ association.dialog }}</span>
       </div>
       <div class="InfoPanel__descItem" v-if="association.thematics.length">
@@ -42,6 +42,7 @@
       <img :src="getIconUrl('map-marker')" alt="Localisation icon">
       <span>{{ association.adress }}</span>
     </div>
+    <div class="InfoPanel__updatedAt" v-if="association.updatedAt">Mise à jour {{ association.updatedAt }}</div>
   </div>
 </template>
 
@@ -95,13 +96,13 @@ export default class InfoPanel extends Vue {
   background: @color-primary;
   color: white;
   height: 100%;
-  width: @dim-osc-info-panel-w;
+  width: @dim-association-info-panel-w;
   padding: 4rem 1.5rem 1.25rem 1.5rem;
   position: relative;
   transition: all .3s ease-out;
 
   &[shown="false"] {
-    transform: translateX(-100%);
+    transform: translateX(100%);
   }
 
   .InfoPanel__closeIcon {
@@ -140,6 +141,9 @@ export default class InfoPanel extends Vue {
   }
 
   .InfoPanel__statusCtn {
+    display: flex;
+    flex-flow: column nowrap;
+    gap: .5rem;
     h2 {
       font-family: @font-secondary;
       line-height: 1.5rem;
@@ -148,7 +152,7 @@ export default class InfoPanel extends Vue {
     .InfoPanel__statusRow {
       line-height: 2.25rem;
       display: flex;
-      flex-flow: row nowrap;
+      flex-flow: row wrap;
       justify-content: space-between;
       text-transform: uppercase;
       font-size: @font-s;
@@ -213,6 +217,13 @@ export default class InfoPanel extends Vue {
       line-height: 1.5rem;
       white-space: pre-line;
     }
+  }
+
+  .InfoPanel__updatedAt {
+    opacity: 0.7;
+    font-family: @font-secondary;
+    text-align: right;
+    font-size: @font-s;
   }
 
 }</style>

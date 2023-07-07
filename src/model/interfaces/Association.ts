@@ -4,12 +4,13 @@ import type Thematic from "@/model/interfaces/Thematic"
 export default interface Association {
   id: number
   name: string
-  updated_at?: string
+  updatedAt?: string
+  country: string
   coords: Coords
   adress?: string
   indic?: string
   tel?: string
-  tel_other?: string
+  telOther?: string
   emails?: string[]
   websiteUrl?: string
   status?: string

@@ -1,6 +1,6 @@
 import { defineStore } from 'pinia'
-import type OSCType from '@/model/interfaces/OSCType'
 import type Thematic from '@/model/interfaces/Thematic'
+import type Association from '@/model/interfaces/Association'
 
 export const useFilterStore = defineStore('filter', {
   state: () => ({
@@ -62,62 +62,15 @@ export const useFilterStore = defineStore('filter', {
         label: "Autre"
       }
     ] as Thematic[],
-    oscTypes: [
-      {
-        label: "Agence / Organisme public",
-        value: "agence_org_pub",
-        color: "#FFD180",
-        isActive: false,
-      },
-      {
-        label: "Association",
-        value: "association",
-        color: "#FF9E80",
-        isActive: false,
-      },
-      {
-        label: "Collectivité territoriale",
-        value: "col_ter",
-        color: "#FFE57F",
-        isActive: false,
-      },
-      {
-        label: "Culturel",
-        value: "culturel",
-        color: "#FFFF8D",
-        isActive: false,
-      },
-      {
-        label: "Entreprise / Syndicat",
-        value: "entreprise_syndicat",
-        color: "#DCE775",
-        isActive: false,
-      },
-      {
-        label: "ONG internationale",
-        value: "ong_int",
-        color: "#B9F6CA",
-        isActive: false,
-      },
-      {
-        label: "OSIM (diaspora)",
-        value: "osim",
-        color: "#C5E1A5",
-        isActive: false,
-      },
-      {
-        label: "Recherche / Apprentissage",
-        value: "recherche_app",
-        color: "#E0F2F1",
-        isActive: false,
-      }
-    ] as OSCType[],
+    countries: [] as string[],
+    countriesFilter: [] as string[],
+    thematicsFilter: [] as Thematic['label'][],
+    search: '' as string,
+    isMapSynced: true,
+    mapShownAssociations: [] as Association['id'][],
   }),
 
   getters: {
-    isAllOSCTypeFiltersInactive: (state): boolean => {
-      return state.oscTypes.filter(oscType => oscType.isActive).length === 0
-    },
     getThematicName: (state) => (thematicKey: Thematic['value']): Thematic['label']|null => {
       return state.thematics.find(thematic => thematic.value === thematicKey)?.label ?? null
     },

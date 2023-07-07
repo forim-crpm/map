@@ -3,35 +3,40 @@
   <div class="AutocompleteFilter">
     <label>{{ label }}</label>
     <v-autocomplete
+      v-model="selected"
+      :items="data"
       id="autocomplete"
       rounded="xl"
       placeholder="Sélectionner..."
       variant="outlined"
-      :items="['California', 'Colorado', 'Florida', 'Georgia', 'Texas', 'Wyoming']"
+      multiple
+      return-object
     />
   </div>
 </template>
 
 <script lang="ts">
-import { Vue, Prop, Component } from 'vue-facing-decorator'
+import { Vue, Prop, Component, Emit, Watch } from 'vue-facing-decorator'
 
 @Component({})
 export default class AutocompleteFilter extends Vue {
 
+  selected = []
+
   @Prop({ default: "Button label" })
   label!: string
 
-  @Prop({ default: false })
-  fill?: boolean
+  @Prop({ default: [] })
+  data!: string[]
 
-  @Prop({ default: false })
-  uppercase?: boolean
+  @Watch('selected')
+  selectedWatcher() {
+    this.onSelected()
+  }
 
-  @Prop({ default: null })
-  icon?: string
-
-  get iconUrl(): string {
-    return './img/icons/' + this.icon + '.svg'
+  @Emit()
+  onSelected(): string[] {
+    return this.selected
   }
 }
 </script>

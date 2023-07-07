@@ -1,0 +1,60 @@
+
+<template>
+  <div
+    class="AssociationListItem"
+    v-if="association !== undefined"
+    :active="isActive"
+    @click="updateActiveAssociation(association.id)"
+    >{{ association.name }}</div>
+</template>
+
+<script lang="ts">
+import { Vue, Component, Prop } from 'vue-facing-decorator'
+import type Association from '@/model/interfaces/Association'
+import { useAssociationStore } from "@/stores/associations";
+
+@Component({})
+export default class AssociationListItem extends Vue {
+
+  @Prop({ default: 0 })
+  index!: number
+
+  @Prop({ default: {} })
+  association!: Association
+
+  get isActive(): boolean {
+    return useAssociationStore().activeAssociationId === this.association.id
+  }
+
+  updateActiveAssociation(id: Association['id']) {
+    useAssociationStore().activeAssociationId = id;
+  }
+}
+</script>
+
+<style lang="less">
+.AssociationListItem {
+  max-width: 100%;
+  overflow-wrap: break-word;
+  display: flex;
+  align-items: center;
+  justify-content: flex-start;
+  min-height: 2.5rem;
+  padding: .5rem 1rem;
+  gap: 2rem;
+  border-radius: 1.25rem;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  font-size: @font-s;
+  font-weight: 600;
+  transition: all .15s ease-in;
+  cursor: pointer;
+  line-height: 1.375rem;
+  flex-shrink: 0;
+
+  &:hover, &[active="true"] {
+    background: rgba(251, 140, 0, 0.20);
+    color: #FF5252;
+  }
+}
+</style>

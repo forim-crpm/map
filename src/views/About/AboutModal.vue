@@ -30,7 +30,7 @@
           <div class="AboutModal__partnersCtn">
             <a :href="partner.link" target="_blank" rel="noopener noreferrer" v-for="(partner, i) in actor.partners"
               :key="i">
-              <img :src="'./img/logos/' + partner.logo" :alt="partner.name + ' logo'">
+              <img :src="'./img/logos/' + partner.logo" :alt="partner.name + ' logo'" loading="lazy">
             </a>
           </div>
         </div>
@@ -176,7 +176,7 @@ export default class AboutModal extends Vue {
 
           p {
             font-family: @font-secondary;
-            color: @color-grey-2;
+            color: @color-grey-3;
             font-size: 0.875rem;
             line-height: 1.375rem;
             letter-spacing: 0.00625rem;
@@ -202,7 +202,7 @@ export default class AboutModal extends Vue {
           align-self: stretch;
 
           h3 {
-            color: @color-black-faded-2;
+            color: @color-black-faded-3;
             font-size: @font-s;
             font-family: @font-secondary;
             line-height: 1.375rem;

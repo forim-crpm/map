@@ -4,7 +4,37 @@ html, body, #app {
 	margin: 0;
 	position: fixed;
 	inset: 0;
-	overflow-y: hidden;
+}
+#app {
+  .v-switch {
+
+    &.active {
+      .v-selection-control {
+        .v-switch__track {
+          background-color: @color-green-accent-2;
+        }
+      }
+    }
+
+    
+    .v-switch__thumb {
+      background: white;
+    }
+    
+    .v-switch__track {
+      background-color: @color-black-faded-4;
+      opacity: 1;
+      height: 24px;
+      width: 44px;
+    }
+  
+    .v-label {
+      font-family: @font-secondary;
+      font-size: @font-s;
+      opacity: 1;
+      color: @color-black-faded-3;
+    }
+  }
 }
 
 #app * {

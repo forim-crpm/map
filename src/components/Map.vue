@@ -9,10 +9,13 @@ import { Vue, Component, Watch } from 'vue-facing-decorator'
 import { useAppStore } from '@/stores/app';
 import MapService from "@/services/MapService";
 import { useAssociationStore } from "@/stores/associations";
+import type Association from "@/model/interfaces/Association";
+import { useFilterStore } from "@/stores/filters";
 
 @Component({})
 export default class Map extends Vue {
   map: any = null
+  geojsonData: any = null
 
   layers = {
     ASSOC: 'association',
@@ -30,6 +33,9 @@ export default class Map extends Vue {
 
     this.setMapPadding()
 
+    this.map.dragRotate.disable();
+    this.map.touchZoomRotate.disableRotation();
+
     // Add zoom control
     var nav = new maplibregl.NavigationControl({
       showCompass: false,
@@ -43,17 +49,40 @@ export default class Map extends Vue {
     }
   }
 
-  get isInfoPanelShown() {
+  get isInfoPanelShown(): boolean {
     return useAppStore().isInfoPanelShown;
   }
 
-  get associations() {
+  get associations(): Association[] {
     return useAssociationStore().associations;
   }
 
+  get filteredAssociations(): Association[] {
+    return useAssociationStore().filteredAssociations;
+  }
+
+  get activeAssociationId(): Association['id']|null {
+    return useAssociationStore().activeAssociationId;
+  }
+
+  get activeAssociation(): Association|null {
+    return useAssociationStore().activeAssociation;
+  }
+
+  @Watch('activeAssociationId')
+  activeAssociationIdWatcher(newVal: Association['id'], oldVal: Association['id']) {
+    if (this.activeAssociation !== null) {
+      this.zoomToAssociation(this.activeAssociation)
+    }
+  }
+
   get padding() {
+    const padding = 30
     return {
-      left: this.isInfoPanelShown ? 360 : 0
+      top: padding,
+      bottom: padding,
+      left: padding,
+      right: (this.isInfoPanelShown ? 360 : 0) + padding
     }
   }
 
@@ -71,7 +100,38 @@ export default class Map extends Vue {
 
   @Watch("associations")
   associationsWatcher() {
+    
     this.updateOscMap()
+    
+    if (useFilterStore().isMapSynced) {
+      console.log("deokdoekdoke")
+      this.initMapSyncFilter()
+    }
+  }
+
+  initMapSyncFilter() {
+    this.map.on('moveend', async () => {
+      const features = this.map.queryRenderedFeatures({ layers: [this.layers.UNCLUSTERED_POINT, this.layers.ASSOC + '-clusters'] });
+      const source = this.map.getSource(this.layers.ASSOC)
+      let associations: Association['id'][] = []
+      await features.forEach(async (feature: any) => {
+        const clusterId = feature.properties.cluster_id
+        const pointCount = feature.properties.point_count
+        if (clusterId !== undefined) {
+          await source.getClusterLeaves(clusterId, pointCount, 0, (err: any, clusterFeatures: any) => {
+            let associationIds = clusterFeatures.map((feature: any) => feature.id)
+            associations.push(...associationIds)
+          })
+        } else {
+          await associations.push(feature.id)
+        }
+      })
+
+      // Buggy
+      setTimeout(() => {
+        return useFilterStore().mapShownAssociations = associations
+      }, 200)
+    })
   }
 
   initMap() {
@@ -83,16 +143,24 @@ export default class Map extends Vue {
     this.addOscLayer()
     this.addTooltipOnHover()
     this.updateAssociationOnClick()
+    this.fitBounds()
+  }
+
+  get geojson(): any {
+    if (this.geojsonData === null) {
+      this.geojsonData = MapService.getGeoJSON()
+    }
+    return this.geojsonData
   }
 
   addOscSource() {
     if (!this.map.getSource(this.layers.ASSOC)) {
-      let data = MapService.getGeoJSON()
+      let data = this.geojson
       this.map.addSource(this.layers.ASSOC, {
         type: 'geojson',
         data: data,
         cluster: true,
-        clusterMaxZoom: 13,
+        clusterMaxZoom: 11,
         clusterRadius: 50
       })
     }
@@ -106,7 +174,7 @@ export default class Map extends Vue {
         source: this.layers.ASSOC,
         filter: ['has', 'point_count'],
         paint: {
-          'circle-color': '#2B5B39',
+          'circle-color': '#558B2F',
           'circle-radius': 40,
           'circle-opacity': 0.15
         }
@@ -118,7 +186,7 @@ export default class Map extends Vue {
         source: this.layers.ASSOC,
         filter: ['has', 'point_count'],
         paint: {
-          'circle-color': '#2B5B39',
+          'circle-color': '#558B2F',
           'circle-radius': 20
         }
       });
@@ -130,7 +198,6 @@ export default class Map extends Vue {
         filter: ['has', 'point_count'],
         layout: {
           'text-field': '{point_count_abbreviated}',
-          // 'text-font': ['Cabin', 'Arial'],
           'text-size': 12,
         },
         paint: {
@@ -138,7 +205,7 @@ export default class Map extends Vue {
         }
       });
 
-      this.map.loadImage(`./img/pins/pin_osim.png`, (error: any, res: any) => {
+      this.map.loadImage(`./img/pins/pin_orange.png`, (error: any, res: any) => {
         if (error) throw error;
         this.map.addImage(`marker`, res);
         this.map.addLayer({
@@ -148,8 +215,6 @@ export default class Map extends Vue {
           filter: ['!', ['has', 'point_count']],
           layout: {
             'icon-image': `marker`,
-            // 'icon-anchor': 'bottom',
-            // 'icon-rotate': key * 15,
             'icon-allow-overlap': true,
             'text-field': ["step", ["zoom"], "", 8.5, ['get', 'name']],
             'text-variable-anchor': ['top', 'bottom', 'left', 'right'],
@@ -159,67 +224,35 @@ export default class Map extends Vue {
             'text-font': ["Arial Unicode MS Regular", "Open Sans Regular"]
           },
           paint: {
+            'icon-opacity': ["case", ['!', ['has', 'point_count']], 1, 0],
             'text-halo-width': 2,
             'text-halo-color': '#fff',
           }
         });
       })
-    //   Promise.all(
-    //     useFilterStore().oscTypes.map((oscType: OSCType) => new Promise<void>((resolve, reject) => {
-    //       this.map.loadImage(`./img/pins/pin_${oscType.value}.png`, (error: any, res: any) => {
-    //         this.map.addImage(`${oscType.value}-marker`, res);
-    //         resolve();
-    //       })
-    //     }))
-    //   ).then(() => {
-    //     useFilterStore().oscTypes.forEach((oscType, key) => {
-    //       this.map.addLayer({
-    //         id: oscType.value + '-unclustered-point',
-    //         type: 'symbol',
-    //         source: this.layers.ASSOC,
-    //         filter: ['!', ['has', 'point_count']],
-    //         layout: {
-    //           'icon-image': `${oscType.value}-marker`,
-    //           'icon-anchor': 'bottom',
-    //           // 'icon-rotate': key * 15,
-    //           'icon-allow-overlap': true,
-    //         }
-    //       });
-    //     })
-    //   })
-    // }
     }
   }
 
   updateAssociationOnClick() {
     this.map.on('click', this.layers.UNCLUSTERED_POINT, (e: any) => {
-      console.log(e.features[0].properties.id)
       useAssociationStore().activeAssociationId = e.features[0].properties.id;
-
-      const currentZoom = this.map.getZoom()
-      const neededZoom = 9
-      this.map.flyTo({
-        center: e.features[0].geometry.coordinates,
-        zoom: currentZoom < neededZoom ? neededZoom : currentZoom,
-        bearing: 0,
-        speed: 3,
-        curve: 1,
-        easing: function (t: any) {
-          return t;
-        },
-        essential: true
-      });
     })
   }
 
-  addPulseOnActivePoint() {
-    this.map.addLayer({
-      id: 'layer-with-pulsing-dot',
-      type: 'symbol',
-      source: 'dot-point',
-      layout: {
-        'icon-image': 'pulsing-dot'
-      }
+  zoomToAssociation(association: Association) {
+    const currentZoom = this.map.getZoom()
+    const neededZoom = 12
+    this.map.flyTo({
+      center: [association.coords.y , association.coords.x],
+      zoom: currentZoom < neededZoom ? neededZoom : currentZoom,
+      padding: this.padding,
+      bearing: 0,
+      speed: 3,
+      curve: 1,
+      easing: function (t: any) {
+        return t;
+      },
+      essential: true
     });
   }
 
@@ -240,7 +273,9 @@ export default class Map extends Vue {
         coordinates[0] += e.lngLat.lng > coordinates[0] ? 360 : -360;
       }
 
-      popup.setLngLat(coordinates).setHTML(associationName).addTo(this.map);
+      const popupHtml = `<h3>${associationName}</h3><span>Plus d'infos</span>`
+
+      popup.setLngLat(coordinates).setHTML(popupHtml).addTo(this.map);
       popup.addClassName('show');
     });
 
@@ -248,6 +283,14 @@ export default class Map extends Vue {
       this.map.getCanvas().style.cursor = '';
       popup.removeClassName('show');
     });
+  }
+
+  fitBounds() {
+    let features = this.geojson.features
+    const bounds = MapService.getBounds(features)
+    this.map.fitBounds(bounds, {
+      padding: this.padding
+    })
   }
 }
 </script>
@@ -275,12 +318,26 @@ export default class Map extends Vue {
     pointer-events: none;
     color: white;
     padding: .75rem 1rem;
-    font-size: @font-s;
-    font-family: @font-secondary;
-    font-weight: 400;
-    line-height: 1.375rem;
-    max-width: 18.5rem; 
+    max-width: 25rem; 
     width: fit-content;
+    gap: 0.5rem;
+    display: flex;
+    flex-flow: column nowrap;
+    border-radius: 0;
+    box-shadow: none;
+
+    h3 {
+      font-size: @font-s;
+      font-family: @font-secondary;
+      font-weight: 400;
+      line-height: 1.375rem;
+    }
+
+    span {
+      text-decoration: underline;
+      font-size: @font-s;
+      font-weight: 600; 
+    }
   }
 
   .maplibregl-popup-tip {
@@ -301,6 +358,7 @@ export default class Map extends Vue {
     background: none;
     box-shadow: none;
     margin: 0;
+    transition: all .15s ease-in;
 
     button {
       background: @color-primary;
@@ -328,7 +386,7 @@ export default class Map extends Vue {
       &.maplibregl-ctrl-fullscreen,
       &.maplibregl-ctrl-shrink {
         .maplibregl-ctrl-icon {
-          background-image: url(./img/icons/mdi-image-filter-center-focus-strong-outline.svg);
+          background-image: url(../img/icons/mdi-image-filter-center-focus-strong-outline.svg);
         }
       }
     }

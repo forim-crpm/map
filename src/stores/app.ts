@@ -4,7 +4,7 @@ export const useAppStore = defineStore('app', {
   state: () => ({
     isAboutModalShown: false,
     isInfoPanelShown: false,
-    isOtherFiltersShown: true,
+    isFiltersBarShown: false,
   }),
 
   getters: {

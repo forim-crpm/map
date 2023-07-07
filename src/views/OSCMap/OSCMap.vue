@@ -1,6 +1,6 @@
 
 <template>
-  <div class="OSCMap">
+  <div class="OSCMap" :info-panel-shown="isInfoPanelShown">
     <InfoPanel />
     <Map />
     <Button label="Renseigner une association" class="OSCMap__newAssocBtn" :uppercase="true" icon="mdi-add" :fill="true" />
@@ -21,6 +21,10 @@ export default class OSCMap extends Vue {
   openInfoPanel() {
     useAppStore().isInfoPanelShown = true
   }
+  
+  get isInfoPanelShown() {
+    return useAppStore().isInfoPanelShown;
+  }
 }
 </script>
 
@@ -28,17 +32,25 @@ export default class OSCMap extends Vue {
 .OSCMap {
   position: relative;
   overflow: hidden;
+  
+  &[info-panel-shown="true"] {
+    .maplibregl-ctrl-top-right, .OSCMap__newAssocBtn {
+      right: @dim-association-info-panel-w;
+      transition: all .15 ease-in;
+    }
+  }
 
   .OSCMap__newAssocBtn {
     position: absolute;
     right: 0;
     bottom: 0;
     margin: 1.5rem;
+    transition: all .15 ease-in;
   }
 
   .InfoPanel {
     position: absolute;
-    left: 0;
+    right: 0;
     top: 0;
     z-index: 1;
   }
