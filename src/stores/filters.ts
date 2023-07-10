@@ -4,6 +4,12 @@ import type Association from '@/model/interfaces/Association'
 
 export const useFilterStore = defineStore('filter', {
   state: () => ({
+    search: '' as string,
+    isMapSynced: false,
+    mapShownAssociations: [] as Association['id'][],
+    countriesFilter: [] as Association['country'][],
+    thematicsFilter: [] as Thematic['value'][],
+    countries: [] as string[],
     thematics: [
       {
         value: 'accueil',
@@ -62,12 +68,6 @@ export const useFilterStore = defineStore('filter', {
         label: "Autre"
       }
     ] as Thematic[],
-    countries: [] as string[],
-    countriesFilter: [] as string[],
-    thematicsFilter: [] as Thematic['label'][],
-    search: '' as string,
-    isMapSynced: true,
-    mapShownAssociations: [] as Association['id'][],
   }),
 
   getters: {

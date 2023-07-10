@@ -12,37 +12,42 @@
     </div>
     <div class="InfoPanel__email" v-if="association.emails && association.emails.length && association.emails[0] != ''">
       <CopyToClipboard :label="association.emails[0]" />
-    </div>
-    <div class="InfoPanel__statusCtn">
-      <h2 v-if="association.status">{{ association.status }}</h2>
-      <div class="InfoPanel__statusRow">
-        <span class="InfoPanel__creationDate" v-if="association.year">Créée en {{ association.year }}</span>
-        <span class="InfoPanel__cost" v-if="association.budget">{{ association.budget }}</span>
+      <div class="InfoPanel__otherEmailCtn" v-if="association.emails.length > 1">
+        <span class="InfoPanel__otherEmail" v-for="email in association.emails.slice(1)" >{{ email }}</span>
       </div>
     </div>
-    <div class="InfoPanel__divider"></div>
-    <div class="InfoPanel__descCtn">
-      <div class="InfoPanel__descItem" v-if="association.intervention">
-        <h2>Échelle territoriale d’intervention</h2>
-        <span>{{ association.intervention }}</span>
+    <div class="InfoPanel__scrollableCtn">
+      <div class="InfoPanel__statusCtn">
+        <h2 v-if="association.status">{{ association.status }}</h2>
+        <div class="InfoPanel__statusRow">
+          <span class="InfoPanel__creationDate" v-if="association.year">Créée en {{ association.year }}</span>
+          <span class="InfoPanel__cost" v-if="association.budget">{{ association.budget }}</span>
+        </div>
       </div>
-      <div class="InfoPanel__descItem" v-if="association.dialog">
-        <h2>Liens et dialogue avec des institutions</h2>
-        <span>{{ association.dialog }}</span>
+      <div class="InfoPanel__divider"></div>
+      <div class="InfoPanel__descCtn">
+        <div class="InfoPanel__descItem" v-if="association.intervention">
+          <h2>Territoires d’intervention</h2>
+          <span>{{ association.intervention }}</span>
+        </div>
+        <div class="InfoPanel__descItem" v-if="association.dialog">
+          <h2>Liens et dialogue avec des institutions</h2>
+          <span>{{ association.dialog }}</span>
+        </div>
+        <div class="InfoPanel__descItem" v-if="association.thematics.length">
+          <h2>Thématiques d’intervention</h2>
+          <ul>
+            <li v-for="(thematic, key) in association.thematics" :key="key">{{ getThematic(thematic) }}</li>
+          </ul>
+        </div>
       </div>
-      <div class="InfoPanel__descItem" v-if="association.thematics.length">
-        <h2>Thématiques d’intervention</h2>
-        <ul>
-          <li v-for="(thematic, key) in association.thematics" :key="key">{{ getThematic(thematic) }}</li>
-        </ul>
+      <div class="InfoPanel__divider"></div>
+      <div class="InfoPanel__location" v-if="association.adress">
+        <img :src="getIconUrl('map-marker')" alt="Localisation icon">
+        <span>{{ association.adress }}</span>
       </div>
+      <div class="InfoPanel__updatedAt" v-if="association.updatedAt">Mise à jour {{ association.updatedAt }}</div>
     </div>
-    <div class="InfoPanel__divider"></div>
-    <div class="InfoPanel__location" v-if="association.adress">
-      <img :src="getIconUrl('map-marker')" alt="Localisation icon">
-      <span>{{ association.adress }}</span>
-    </div>
-    <div class="InfoPanel__updatedAt" v-if="association.updatedAt">Mise à jour {{ association.updatedAt }}</div>
   </div>
 </template>
 
@@ -97,12 +102,26 @@ export default class InfoPanel extends Vue {
   color: white;
   height: 100%;
   width: @dim-association-info-panel-w;
-  padding: 4rem 1.5rem 1.25rem 1.5rem;
+  padding-top: 4rem;
+  padding-bottom: 1.25rem;
   position: relative;
   transition: all .3s ease-out;
 
+  > * {
+    padding-left: 1.5rem;
+    padding-right: 1.5rem;
+  }
+
   &[shown="false"] {
     transform: translateX(100%);
+  }
+
+  .InfoPanel__scrollableCtn {
+    display: flex;
+    flex-flow: column nowrap;
+    gap: 1rem;
+    flex: 1 0 0;
+    overflow-y: auto;
   }
 
   .InfoPanel__closeIcon {
@@ -117,7 +136,7 @@ export default class InfoPanel extends Vue {
   .InfoPanel__head {
     display: flex;
     flex-flow: column nowrap;
-    gap: 0.25rem;
+    gap: 0.375rem;
 
     h1 {
       font-size: @font-m;
@@ -137,6 +156,22 @@ export default class InfoPanel extends Vue {
         margin-left: .25rem;
         width: 0.75rem;
       }
+    }
+  }
+
+  .InfoPanel__email {
+    display: flex;
+    flex-flow: column nowrap;
+    gap: .5rem;
+    text-transform: lowercase;
+
+    .InfoPanel__otherEmailCtn {
+      font-size: @font-s;
+      opacity: 0.7;
+      margin-left: 1rem;
+      display: flex;
+      flex-flow: column nowrap;
+      gap: .25rem;
     }
   }
 

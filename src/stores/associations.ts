@@ -1,7 +1,7 @@
 import { defineStore } from 'pinia'
 import type Association from '@/model/interfaces/Association'
 import { useFilterStore } from './filters';
-import { useAppStore } from './app';
+import type Thematic from '@/model/interfaces/Thematic';
 
 export const useAssociationStore = defineStore('associations', {
   state: () => ({
@@ -21,8 +21,9 @@ export const useAssociationStore = defineStore('associations', {
 
       // Filter by thematics
       if (useFilterStore().thematicsFilter.length) {
-        associations = associations
-        // .filter((a: Association) => useFilterStore().thematicsFilter.includes(a.thematics))
+        associations = associations.filter((a: Association) => a.thematics.some(
+          (thematic: Thematic['value']) => useFilterStore().thematicsFilter.includes(thematic)
+        ))
       }
 
       // Filter by search

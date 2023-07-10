@@ -5,6 +5,8 @@
     <v-autocomplete
       v-model="selected"
       :items="data"
+      item-value="value"
+      item-title="label"
       id="autocomplete"
       rounded="xl"
       placeholder="Sélectionner..."
@@ -16,18 +18,19 @@
 </template>
 
 <script lang="ts">
+import type FilterItem from '@/model/interfaces/FilterItem'
 import { Vue, Prop, Component, Emit, Watch } from 'vue-facing-decorator'
 
 @Component({})
 export default class AutocompleteFilter extends Vue {
 
-  selected = []
+  selected: FilterItem[] = []
 
   @Prop({ default: "Button label" })
   label!: string
 
   @Prop({ default: [] })
-  data!: string[]
+  data!: FilterItem[]
 
   @Watch('selected')
   selectedWatcher() {
@@ -35,7 +38,7 @@ export default class AutocompleteFilter extends Vue {
   }
 
   @Emit()
-  onSelected(): string[] {
+  onSelected(): FilterItem[] {
     return this.selected
   }
 }
@@ -69,12 +72,13 @@ export default class AutocompleteFilter extends Vue {
     .v-field__input {
       --v-input-control-height: 2.5rem;
       align-items: center;
-      gap: 0.625rem;
+      gap: 0.25rem;
       align-self: stretch;
       padding: 0.5rem 0.75rem 0.5rem 1.5rem !important;
       font-size: @font-s !important;
       font-family: @font-primary !important;
       height: 2.5rem !important;
+      overflow: hidden;
       min-height: inherit;
       input {
         margin: 0;

@@ -65,7 +65,8 @@ export default class App extends Vue {
     &--right {
       display: flex;
       flex-flow: column nowrap;
-      flex: 1 0 auto;
+      flex: 1 1 auto;
+      max-width: 100%;
 
       .OSCMap {
         flex: 1 0 auto;

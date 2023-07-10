@@ -2,10 +2,19 @@
 <template>
   <dialog class="AboutModal" :open="isAboutModalShown">
     <div class="AboutModal__head">
-      <h1>À propos du projet</h1>
-      <Button label="Téléchargements" :uppercase="true" icon="mdi-download-circle-outline" />
+      <h1>{{ !isDownloadShown ? "À propos du projet" : "Téléchargements" }}</h1>
+      <Button
+        :label="!isDownloadShown ? 'Téléchargements' : 'À propos'"
+        :uppercase="true"
+        :icon="!isDownloadShown ? 'mdi-download-circle-outline' : 'mdi-information-variant-circle-outline'"
+        @click="toggleIsDownloadShown()" />
     </div>
-    <div class="AboutModal__content">
+    <div class="AboutModal__content" v-if="isDownloadShown">
+      <div class="AboutModal__downloadsCtn">
+        <DownloadReportItem v-for="(downloadReport, key) in downloadReports" :downloadReport="downloadReport" :key="key" />
+      </div>
+    </div>
+    <div class="AboutModal__content" v-if="!isDownloadShown">
       <div class="AboutModal__ctn AboutModal__ctn--right">
         <div class="AboutModal__titles">
           <h2>Coopération régionale des politiques migratoires</h2>
@@ -46,9 +55,11 @@
 import { useAppStore } from '@/stores/app';
 import { Vue, Component } from 'vue-facing-decorator'
 import Button from '@/components/Button.vue';
+import DownloadReportItem from '@/views/About/DownloadReportItem.vue';
+import type DownloadReport from '@/model/interfaces/DownloadReport'
 
 @Component({
-  components: { Button }
+  components: { Button, DownloadReportItem }
 })
 export default class AboutModal extends Vue {
   actors = [
@@ -97,10 +108,24 @@ export default class AboutModal extends Vue {
   get isAboutModalShown() {
     return useAppStore().isAboutModalShown
   }
+  
+  get isDownloadShown() {
+    return useAppStore().isDownloadShown
+  }
+
+  get downloadReports(): DownloadReport[] {
+    return useAppStore().downloadReports
+  }
 
   close() {
     useAppStore().isAboutModalShown = false
+    setTimeout(() => useAppStore().isDownloadShown = false, 300)
   }
+
+  toggleIsDownloadShown() {
+    useAppStore().isDownloadShown = !this.isDownloadShown
+  }
+
 }
 </script>
 
@@ -140,6 +165,14 @@ export default class AboutModal extends Vue {
     flex-flow: row nowrap;
     border-top: @mixin-divider-border;
     border-bottom: @mixin-divider-border;
+
+    .AboutModal__downloadsCtn {
+      flex: 1 0 auto;
+      gap: 1rem;
+      display: flex;
+      flex-flow: column nowrap;
+      padding: 2rem;
+    }
 
     .AboutModal__ctn {
 

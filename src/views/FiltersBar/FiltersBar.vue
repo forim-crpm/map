@@ -3,8 +3,8 @@
   <div class="FiltersBar" :shown="isShown" v-if="isShown">
     <Button label="Réinitialiser" uppercase="true" small="true"  class="FiltersBar__resetBtn" @click="resetFilters" />
     <div class="FiltersBar__filtersCtn">
-      <AutocompleteFilter label="Pays" :data="countries" @on-selected="(countries: any) => updateCountries(countries)"/>
-      <AutocompleteFilter label="Thématique" :data="thematics" @on-selected="(thematics: any) => updateThematics(thematics)"/>
+      <AutocompleteFilter label="Pays" :data="countriesData" @on-selected="(countries: FilterItem[]) => updateCountries(countries.map((c: FilterItem) => c.value))"/>
+      <AutocompleteFilter label="Thématique" :data="thematicsData" @on-selected="(thematics: FilterItem[]) => updateThematics(thematics.map((t: FilterItem) => t.value))"/>
     </div>
   </div>
 </template>
@@ -16,6 +16,8 @@ import { useFilterStore } from '@/stores/filters'
 import AutocompleteFilter from '@/components/AutocompleteFilter.vue'
 import Button from '@/components/Button.vue'
 import type Thematic from '@/model/interfaces/Thematic';
+import type Association from '@/model/interfaces/Association'
+import type FilterItem from '@/model/interfaces/FilterItem'
 
 @Component({
   components: { AutocompleteFilter, Button }
@@ -26,12 +28,22 @@ export default class FiltersBar extends Vue {
     return useAppStore().isFiltersBarShown
   }
 
-  get countries() {
-    return useFilterStore().countries
+  get countriesData(): FilterItem[]  {
+    return useFilterStore().countries.map((country: Association['country']) => {
+      return {
+        label: country,
+        value: country
+      }
+    })
   }
 
-  get thematics() {
-    return useFilterStore().thematics.map(t => t.label)
+  get thematicsData(): FilterItem[] {
+    return useFilterStore().thematics.map((thematic: Thematic) => {
+      return {
+        label: thematic.label,
+        value: thematic.value
+      }  
+    })
   }
 
   resetFilters() {
@@ -40,11 +52,11 @@ export default class FiltersBar extends Vue {
     useFilterStore().search = ''
   }
 
-  updateCountries(countries: string[]) {
+  updateCountries(countries: Association['country'][]) {
     useFilterStore().countriesFilter = countries
   }
 
-  updateThematics(thematics: Thematic['label'][]) {
+  updateThematics(thematics: Thematic['value'][]) {
     useFilterStore().thematicsFilter = thematics
   }
 }

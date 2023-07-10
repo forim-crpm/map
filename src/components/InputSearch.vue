@@ -1,5 +1,5 @@
 <template>
-  <input class="InputSearch" type="search" :placeholder="placeholder" @keyup="updateSearch" />
+  <input class="InputSearch" type="search" :placeholder="placeholder" @keyup="updateSearch" v-model="filterStore.search" />
 </template>
 
 <script lang="ts">
@@ -12,6 +12,9 @@ export default class InputSearch extends Vue {
   @Prop({ default: "Rechercher une association" })
   placeholder!: string
 
+  get filterStore() {
+    return useFilterStore()
+  }
   updateSearch(e: any) {
     useFilterStore().search = e.target.value
   }

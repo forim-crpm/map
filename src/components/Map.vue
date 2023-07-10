@@ -51,52 +51,11 @@ export default class Map extends Vue {
     this.initMapSyncFilter()
   }
 
-  get isInfoPanelShown(): boolean {
-    return useAppStore().isInfoPanelShown;
-  }
-
-  get associations(): Association[] {
-    return useAssociationStore().associations;
-  }
-
-  get filteredAssociations(): Association[] {
-    return useAssociationStore().filteredAssociations;
-  }
-
-  get filteredAssociationsId(): Association['id'][] {
-    return this.filteredAssociations.map((association: Association) => association.id);
-  }
-
-  get activeAssociationId(): Association['id']|null {
-    return useAssociationStore().activeAssociationId;
-  }
-
-  get activeAssociation(): Association|null {
-    return useAssociationStore().activeAssociation;
-  }
-
   @Watch('activeAssociationId')
-  activeAssociationIdWatcher(newVal: Association['id'], oldVal: Association['id']) {
+  activeAssociationIdWatcher() {
     if (this.activeAssociation !== null) {
       this.zoomToAssociation(this.activeAssociation)
     }
-  }
-
-  get padding() {
-    const padding = 30
-    return {
-      top: padding,
-      bottom: padding,
-      left: padding,
-      right: (this.isInfoPanelShown ? 360 : 0) + padding
-    }
-  }
-
-  setMapPadding() {
-    this.map.easeTo({
-      padding: this.padding,
-      duration: 300 // In ms, CSS transition duration property for the sidebar matches this value
-    });
   }
 
   @Watch("isInfoPanelShown")
@@ -109,12 +68,71 @@ export default class Map extends Vue {
     this.updateOscMap()
   }
 
-  @Watch("filteredAssociations")
+  @Watch("filteredAssociationsWithoutMapFilter")
+  filteredAssociationsWithoutMapFilterWatcher(newVal: Association[], oldVal: Association[]) {
+    if (newVal !== oldVal && !useFilterStore().isMapSynced) {
+      this.fitBounds()
+    }
+  }
+
+  @Watch("filteredAssociations", {
+    deep: true
+  })
   filteredAssociationsWatcher() {
     this.addOscSource()
   }
 
+  get isInfoPanelShown(): boolean {
+    return useAppStore().isInfoPanelShown;
+  }
+
+  get associations(): Association[] {
+    return useAssociationStore().associations;
+  }
+
+  get filteredAssociations(): Association[] {
+    return useAssociationStore().filteredAssociations;
+  }
+
+  get filteredAssociationsWithoutMapFilter(): Association[] {
+    return useAssociationStore().filteredAssociationsWithoutMapFilter;
+  }
+
+  get filteredAssociationsId(): Association['id'][] {
+    return this.filteredAssociations.map((association: Association) => association.id);
+  }
+
+  get activeAssociationId(): Association['id'] | null {
+    return useAssociationStore().activeAssociationId;
+  }
+
+  get activeAssociation(): Association | null {
+    return useAssociationStore().activeAssociation;
+  }
+
+  get padding() {
+    const padding = 30
+    return {
+      top: padding,
+      bottom: padding,
+      left: padding,
+      right: (this.isInfoPanelShown ? 360 : 0) + padding
+    }
+  }
+
+  get geojson(): any {
+    return MapService.getGeoJSON()
+  }
+
+  setMapPadding() {
+    this.map.easeTo({
+      padding: this.padding,
+      duration: 300 // In ms, CSS transition duration property for the sidebar matches this value
+    });
+  }
+
   initMapSyncFilter() {
+    // Replacing 'moveend' by 'zoomend' because of inifinite triggering with 'moveend' event
     this.map.on('moveend', async () => {
       if (this.map.getLayer(this.layers.UNCLUSTERED_POINT) !== undefined) {
 
@@ -126,14 +144,16 @@ export default class Map extends Vue {
           const pointCount = feature.properties.point_count
           if (clusterId !== undefined) {
             await source.getClusterLeaves(clusterId, pointCount, 0, (err: any, clusterFeatures: any) => {
+              // if (clusterFeatures !== undefined) {
               let associationIds = clusterFeatures.map((feature: any) => feature.id)
               associations.push(...associationIds)
+              // }
             })
           } else {
             await associations.push(feature.id)
           }
         })
-  
+
         // Buggy
         setTimeout(() => {
           return useFilterStore().mapShownAssociations = associations
@@ -152,10 +172,6 @@ export default class Map extends Vue {
     this.addTooltipOnHover()
     this.updateAssociationOnClick()
     this.fitBounds()
-  }
-
-  get geojson(): any {
-    return MapService.getGeoJSON()
   }
 
   addOscSource() {
@@ -250,7 +266,7 @@ export default class Map extends Vue {
     const currentZoom = this.map.getZoom()
     const neededZoom = 12
     this.map.flyTo({
-      center: [association.coords.y , association.coords.x],
+      center: [association.coords.y, association.coords.x],
       zoom: currentZoom < neededZoom ? neededZoom : currentZoom,
       padding: this.padding,
       bearing: 0,
@@ -294,11 +310,14 @@ export default class Map extends Vue {
 
   fitBounds() {
     let features = this.geojson.features
-    const bounds = MapService.getBounds(features)
-    this.map.fitBounds(bounds, {
-      padding: this.padding
-    })
+    if (features.length) {
+      const bounds = MapService.getBounds(features)
+      this.map.fitBounds(bounds, {
+        padding: this.padding
+      })
+    }
   }
+
 }
 </script>
 
@@ -309,10 +328,12 @@ export default class Map extends Vue {
   bottom: 0;
   width: 100%;
   height: 100%;
+
   .maplibregl-ctrl-bottom-right {
     z-index: 0;
     font-family: @font-secondary;
   }
+
   .maplibregl-popup {
     top: -1.5rem;
     transition: opacity .15s ease-in;
@@ -323,12 +344,13 @@ export default class Map extends Vue {
       opacity: 1;
     }
   }
+
   .maplibregl-popup-content {
     background: @color-primary;
     pointer-events: none;
     color: white;
     padding: .75rem 1rem;
-    max-width: 25rem; 
+    max-width: 25rem;
     width: fit-content;
     gap: 0.5rem;
     display: flex;
@@ -346,7 +368,7 @@ export default class Map extends Vue {
     span {
       text-decoration: underline;
       font-size: @font-s;
-      font-weight: 600; 
+      font-weight: 600;
     }
   }
 
