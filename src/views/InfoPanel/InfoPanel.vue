@@ -126,6 +126,7 @@ export default class InfoPanel extends Vue {
 
   .InfoPanel__closeIcon {
     position: absolute;
+    padding: 0;
     right: 0;
     top: 0;
     width: 1.5rem;
