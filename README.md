@@ -9,6 +9,12 @@ This template should help get you started developing with Vue 3 in Vite.
 - Pinia
 - MapLibreGLJS
 
+## Prod deployement
+`git remote add prod https://github.com/forim-crpm/map.git`
+`yarn build-only`
+`git add dist && git commit -m 'v0.1'`
+`git subtree push --prefix dist prod gh-pages`
+
 ## Recommended IDE Setup
 
 [VSCode](https://code.visualstudio.com/) + [Volar](https://marketplace.visualstudio.com/items?itemName=Vue.volar) (and disable Vetur) + [TypeScript Vue Plugin (Volar)](https://marketplace.visualstudio.com/items?itemName=Vue.vscode-typescript-vue-plugin).
