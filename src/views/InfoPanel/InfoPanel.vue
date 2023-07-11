@@ -67,7 +67,9 @@ export default class InfoPanel extends Vue {
 
   @Watch("association")
   associationWatcher() {
-    useAppStore().isInfoPanelShown = true
+    if (this.association !== null) {
+      useAppStore().isInfoPanelShown = true
+    }
   }
 
   get isInfoPanelShown() {
@@ -88,6 +90,7 @@ export default class InfoPanel extends Vue {
 
   closeInfoPanel() {
     useAppStore().isInfoPanelShown = false
+    setTimeout(() => useAssociationStore().activeAssociationId = null, 300)
   }
 }
 </script>
@@ -152,6 +155,7 @@ export default class InfoPanel extends Vue {
       font-family: @font-secondary;
       display: flex;
       align-items: center;
+      line-height: 1.3em;
 
       img {
         margin-left: .25rem;

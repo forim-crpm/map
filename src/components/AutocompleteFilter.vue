@@ -32,9 +32,17 @@ export default class AutocompleteFilter extends Vue {
   @Prop({ default: [] })
   data!: FilterItem[]
 
+  @Prop({ default: false })
+  reset!: boolean
+
   @Watch('selected')
   selectedWatcher() {
     this.onSelected()
+  }
+
+  @Watch('reset')
+  resetWatcher() {
+    this.selected = []
   }
 
   @Emit()

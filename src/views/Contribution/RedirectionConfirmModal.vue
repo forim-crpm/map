@@ -2,7 +2,7 @@
 <template>
   <dialog class="Modal" :open="isRedirectionModalShown">
     <div class="Modal__head">
-      <h1>Référencer une association</h1>
+      <h1>Renseigner une association</h1>
     </div>
     <div class="Modal__content">
       <p>Si vous souhaitez signaler une nouvelle association ou mettre à jour les informations affichées sur la carte, merci de remplir le questionnaire en ligne. Veillez à bien renseigner le numéro de téléphone et l’adresse électronique : nous vous recontacterons avant la mise en ligne des informations.</p>

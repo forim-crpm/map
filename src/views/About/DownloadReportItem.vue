@@ -2,7 +2,7 @@
 <template>
   <a class="DownloadReportItem" :href="'./reports/' + downloadReport.filename" download>
     <h3 class="DownloadReportItem__name">{{ downloadReport.name }}</h3>
-    <img :src="'./img/icons/mdi-download-circle-outline-grey.svg'" alt="Download icon">
+    <img :src="'../img/icons/mdi-download-circle-outline-grey.svg'" alt="Download icon">
   </a>
 </template>
 
@@ -15,7 +15,6 @@ export default class DownloadReportItem extends Vue {
 
   @Prop({ default: "Button label" })
   downloadReport!: DownloadReport
-
 }
 </script>
 

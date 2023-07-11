@@ -3,8 +3,8 @@
   <div class="FiltersBar" :shown="isShown" v-if="isShown">
     <Button label="Réinitialiser" uppercase="true" small="true"  class="FiltersBar__resetBtn" @click="resetFilters" />
     <div class="FiltersBar__filtersCtn">
-      <AutocompleteFilter label="Pays" :data="countriesData" @on-selected="(countries: FilterItem[]) => updateCountries(countries.map((c: FilterItem) => c.value))"/>
-      <AutocompleteFilter label="Thématique" :data="thematicsData" @on-selected="(thematics: FilterItem[]) => updateThematics(thematics.map((t: FilterItem) => t.value))"/>
+      <AutocompleteFilter label="Pays" :reset="resetTrigger" :data="countriesData" @on-selected="(countries: FilterItem[]) => updateCountries(countries.map((c: FilterItem) => c.value))"/>
+      <AutocompleteFilter label="Thématique" :reset="resetTrigger" :data="thematicsData" @on-selected="(thematics: FilterItem[]) => updateThematics(thematics.map((t: FilterItem) => t.value))"/>
     </div>
   </div>
 </template>
@@ -28,6 +28,10 @@ export default class FiltersBar extends Vue {
     return useAppStore().isFiltersBarShown
   }
 
+  get filterStore() {
+    return useFilterStore()
+  }
+
   get countriesData(): FilterItem[]  {
     return useFilterStore().countries.map((country: Association['country']) => {
       return {
@@ -46,9 +50,14 @@ export default class FiltersBar extends Vue {
     })
   }
 
+  get resetTrigger() {
+    return useFilterStore().resetTrigger
+  }
+
   resetFilters() {
     useFilterStore().countriesFilter = []
     useFilterStore().thematicsFilter = []
+    useFilterStore().resetTrigger = !this.resetTrigger
     useFilterStore().search = ''
   }
 

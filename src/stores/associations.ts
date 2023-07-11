@@ -6,7 +6,8 @@ import type Thematic from '@/model/interfaces/Thematic';
 export const useAssociationStore = defineStore('associations', {
   state: () => ({
     associations: [] as Association[],
-    activeAssociationId: null as null|Association['id']
+    activeAssociationId: null as null|Association['id'],
+    hoveredAssociationId: null as null|Association['id']
   }),
 
   getters: {

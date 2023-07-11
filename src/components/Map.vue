@@ -19,6 +19,9 @@ export default class Map extends Vue {
 
   layers = {
     ASSOC: 'association',
+    ASSOC_CLUSTER: 'association-cluster',
+    ASSOC_CLUSTER_COUNT: 'association-cluster-count',
+    ASSOC_CLUSTER_BG: 'association-cluster-bg',
     UNCLUSTERED_POINT: 'unclustered-point'
   }
 
@@ -56,6 +59,32 @@ export default class Map extends Vue {
     if (this.activeAssociation !== null) {
       this.zoomToAssociation(this.activeAssociation)
     }
+    this.updatePins()
+  }
+
+  get filterPin() {
+    return  [
+      'case',
+      ['in',
+        ['get', 'id'],
+        ['literal', [
+          this.hoveredAssociationId,
+          this.activeAssociationId
+        ].filter(f => f)]
+      ], 'marker-active',
+      'marker'
+    ]
+  }
+
+  updatePins() {
+    if (this.map.getLayer(this.layers.UNCLUSTERED_POINT) !== undefined) {
+      this.map.setLayoutProperty(this.layers.UNCLUSTERED_POINT, 'icon-image', this.filterPin)
+    }
+  }
+
+  @Watch('hoveredAssociationId')
+  hoveredAssociationIdWatcher() {
+    this.updatePins()
   }
 
   @Watch("isInfoPanelShown")
@@ -70,8 +99,12 @@ export default class Map extends Vue {
 
   @Watch("filteredAssociationsWithoutMapFilter")
   filteredAssociationsWithoutMapFilterWatcher(newVal: Association[], oldVal: Association[]) {
-    if (newVal !== oldVal && !useFilterStore().isMapSynced) {
-      this.fitBounds()
+    if (newVal !== oldVal) {
+      if (!useFilterStore().isMapSynced) {
+        this.fitBounds()
+      } else {
+        this.setMapFilter()
+      }
     }
   }
 
@@ -106,6 +139,10 @@ export default class Map extends Vue {
     return useAssociationStore().activeAssociationId;
   }
 
+  get hoveredAssociationId(): Association['id'] | null {
+    return useAssociationStore().hoveredAssociationId;
+  }
+
   get activeAssociation(): Association | null {
     return useAssociationStore().activeAssociation;
   }
@@ -131,34 +168,37 @@ export default class Map extends Vue {
     });
   }
 
-  initMapSyncFilter() {
-    // Replacing 'moveend' by 'zoomend' because of inifinite triggering with 'moveend' event
-    this.map.on('moveend', async () => {
-      if (this.map.getLayer(this.layers.UNCLUSTERED_POINT) !== undefined) {
+  async setMapFilter() {
+    if (this.map.getLayer(this.layers.UNCLUSTERED_POINT) !== undefined) {
 
-        const features = this.map.queryRenderedFeatures({ layers: [this.layers.UNCLUSTERED_POINT, this.layers.ASSOC + '-clusters'] });
-        const source = this.map.getSource(this.layers.ASSOC)
-        let associations: Association['id'][] = []
-        await features.forEach(async (feature: any) => {
-          const clusterId = feature.properties.cluster_id
-          const pointCount = feature.properties.point_count
-          if (clusterId !== undefined) {
-            await source.getClusterLeaves(clusterId, pointCount, 0, (err: any, clusterFeatures: any) => {
-              // if (clusterFeatures !== undefined) {
+      const features = this.map.queryRenderedFeatures({ layers: [this.layers.UNCLUSTERED_POINT, this.layers.ASSOC_CLUSTER] });
+      const source = this.map.getSource(this.layers.ASSOC)
+      let associations: Association['id'][] = []
+      await features.forEach(async (feature: any) => {
+        const clusterId = feature.properties.cluster_id
+        const pointCount = feature.properties.point_count
+        if (clusterId !== undefined) {
+          await source.getClusterLeaves(clusterId, pointCount, 0, (err: any, clusterFeatures: any) => {
+            if (clusterFeatures !== undefined) {
               let associationIds = clusterFeatures.map((feature: any) => feature.id)
               associations.push(...associationIds)
-              // }
-            })
-          } else {
-            await associations.push(feature.id)
-          }
-        })
+            }
+          })
+        } else {
+          await associations.push(feature.id)
+        }
+      })
 
-        // Buggy
-        setTimeout(() => {
-          return useFilterStore().mapShownAssociations = associations
-        }, 200)
-      }
+      // Buggy
+      setTimeout(() => {
+        return useFilterStore().mapShownAssociations = associations
+      }, 200)
+    }
+  }
+
+  initMapSyncFilter() {
+    this.map.on('moveend', async () => {
+      await this.setMapFilter()
     })
   }
 
@@ -169,6 +209,7 @@ export default class Map extends Vue {
   updateOscMap() {
     this.addOscSource()
     this.addOscLayer()
+    this.addClusterClickEvent()
     this.addTooltipOnHover()
     this.updateAssociationOnClick()
     this.fitBounds()
@@ -193,7 +234,7 @@ export default class Map extends Vue {
   addOscLayer() {
     if (this.map.getLayer(this.layers.ASSOC) === undefined) {
       this.map.addLayer({
-        id: this.layers.ASSOC + '-clusters-bg',
+        id: this.layers.ASSOC_CLUSTER_BG,
         type: 'circle',
         source: this.layers.ASSOC,
         filter: ['has', 'point_count'],
@@ -205,7 +246,7 @@ export default class Map extends Vue {
       });
 
       this.map.addLayer({
-        id: this.layers.ASSOC + '-clusters',
+        id: this.layers.ASSOC_CLUSTER,
         type: 'circle',
         source: this.layers.ASSOC,
         filter: ['has', 'point_count'],
@@ -216,7 +257,7 @@ export default class Map extends Vue {
       });
 
       this.map.addLayer({
-        id: this.layers.ASSOC + '-cluster-count',
+        id: this.layers.ASSOC_CLUSTER_COUNT,
         type: 'symbol',
         source: this.layers.ASSOC,
         filter: ['has', 'point_count'],
@@ -228,7 +269,10 @@ export default class Map extends Vue {
           'text-color': '#fff'
         }
       });
-
+      this.map.loadImage(`./img/pins/pin_active.png`, (error: any, res: any) => {
+        if (error) throw error;
+        this.map.addImage(`marker-active`, res);
+      })
       this.map.loadImage(`./img/pins/pin_orange.png`, (error: any, res: any) => {
         if (error) throw error;
         this.map.addImage(`marker`, res);
@@ -238,7 +282,7 @@ export default class Map extends Vue {
           source: this.layers.ASSOC,
           filter: ['!', ['has', 'point_count']],
           layout: {
-            'icon-image': `marker`,
+            'icon-image': this.filterPin,
             'icon-allow-overlap': true,
             'text-field': ["step", ["zoom"], "", 8.5, ['get', 'name']],
             'text-variable-anchor': ['top', 'bottom', 'left', 'right'],
@@ -260,6 +304,31 @@ export default class Map extends Vue {
     this.map.on('click', this.layers.UNCLUSTERED_POINT, (e: any) => {
       useAssociationStore().activeAssociationId = e.features[0].properties.id;
     })
+  }
+
+  addClusterClickEvent() {
+    this.map.on('click', this.layers.ASSOC_CLUSTER, (e: any) => {
+      const features = this.map.queryRenderedFeatures(e.point, {
+        layers: [this.layers.ASSOC_CLUSTER]
+      });
+      const clusterId = features[0].properties.cluster_id;
+      this.map.getSource(this.layers.ASSOC).getClusterExpansionZoom(clusterId, (err: any, zoom: any) => {
+        if (err) return;
+        this.map.easeTo({
+          center: features[0].geometry.coordinates,
+          zoom: zoom
+        });
+        }
+      );
+    })
+
+    this.map.on('mouseenter', this.layers.ASSOC_CLUSTER, (e: any) => {
+      this.map.getCanvas().style.cursor = 'pointer';
+    });
+
+    this.map.on('mouseleave', this.layers.ASSOC_CLUSTER, () => {
+      this.map.getCanvas().style.cursor = '';
+    });
   }
 
   zoomToAssociation(association: Association) {
@@ -300,11 +369,14 @@ export default class Map extends Vue {
 
       popup.setLngLat(coordinates).setHTML(popupHtml).addTo(this.map);
       popup.addClassName('show');
+      
+      useAssociationStore().hoveredAssociationId = e.features[0].properties.id;
     });
 
     this.map.on('mouseleave', this.layers.UNCLUSTERED_POINT, () => {
       this.map.getCanvas().style.cursor = '';
       popup.removeClassName('show');
+      useAssociationStore().hoveredAssociationId = null;
     });
   }
 
@@ -313,7 +385,7 @@ export default class Map extends Vue {
     if (features.length) {
       const bounds = MapService.getBounds(features)
       this.map.fitBounds(bounds, {
-        padding: this.padding
+        padding: 30
       })
     }
   }

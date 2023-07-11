@@ -5,6 +5,8 @@
     v-if="association !== undefined"
     :active="isActive"
     @click="updateActiveAssociation(association.id)"
+    @mouseover="updateHoveredAssociation(association.id)"
+    @mouseleave="updateHoveredAssociation(null)"
     >{{ association.name }}</div>
 </template>
 
@@ -12,6 +14,7 @@
 import { Vue, Component, Prop } from 'vue-facing-decorator'
 import type Association from '@/model/interfaces/Association'
 import { useAssociationStore } from "@/stores/associations";
+import { useAppStore } from '@/stores/app';
 
 @Component({})
 export default class AssociationListItem extends Vue {
@@ -22,12 +25,25 @@ export default class AssociationListItem extends Vue {
   @Prop({ default: {} })
   association!: Association
 
+  get activeAssociationId(): Association['id']|null {
+    return useAssociationStore().activeAssociationId
+  }
+
   get isActive(): boolean {
-    return useAssociationStore().activeAssociationId === this.association.id
+    return this.activeAssociationId === this.association.id
   }
 
   updateActiveAssociation(id: Association['id']) {
-    useAssociationStore().activeAssociationId = id;
+    if (id === this.activeAssociationId) {
+      useAppStore().isInfoPanelShown = false
+      setTimeout(() => useAssociationStore().activeAssociationId = null, 300)
+    } else {
+      useAssociationStore().activeAssociationId = id;
+    }
+  }
+
+  updateHoveredAssociation(id: Association['id']|null) {
+    useAssociationStore().hoveredAssociationId = id
   }
 }
 </script>

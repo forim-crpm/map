@@ -6,6 +6,7 @@ export const useFilterStore = defineStore('filter', {
   state: () => ({
     search: '' as string,
     isMapSynced: false,
+    resetTrigger: false,
     mapShownAssociations: [] as Association['id'][],
     countriesFilter: [] as Association['country'][],
     thematicsFilter: [] as Thematic['value'][],
