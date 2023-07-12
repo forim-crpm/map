@@ -21,7 +21,11 @@
         <h2 v-if="association.status">{{ association.status }}</h2>
         <div class="InfoPanel__statusRow">
           <span class="InfoPanel__creationDate" v-if="association.year">Créée en {{ association.year }}</span>
-          <span class="InfoPanel__cost" v-if="association.budget">{{ association.budget }}</span>
+          <span class="InfoPanel__cost" v-if="association.budget">
+            {{ association.budget }}
+            <img :src="getIconUrl('mdi-information-variant-circle-outline-white')" alt="Localisation icon">
+            <span class="InfoPanel__costTooltip">Budget moyen (fonctionnement et activités) au cours des 10 dernières années</span>
+          </span>
         </div>
       </div>
       <div class="InfoPanel__divider"></div>
@@ -201,7 +205,43 @@ export default class InfoPanel extends Vue {
 
       .InfoPanel__creationDate {}
 
-      .InfoPanel__cost {}
+      .InfoPanel__cost {
+        
+        display: flex;
+        flex-flow: row wrap;
+        align-items: center;
+        gap: .5rem;
+        position: relative;
+        cursor: pointer;
+
+        .InfoPanel__costTooltip {
+          position: absolute;
+          font-size: @font-xs;
+          background: @color-black-faded-3;
+          line-height: 1.25rem;
+          text-transform: initial;
+          padding: .5rem 1rem;
+          transition: all .15s ease-in;
+          border-radius: @dim-rad;
+          top: 100%;
+          right: 0;
+          min-width: 20rem;
+          opacity: 0;
+          pointer-events: none;
+          z-index: 1;
+        }
+
+        &:hover {
+          .InfoPanel__costTooltip {
+            opacity: 1;
+          }
+        }
+
+        img {
+          max-height: 1.25rem;
+
+        }
+      }
     }
   }
 

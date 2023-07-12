@@ -45,7 +45,6 @@ export const useAssociationStore = defineStore('associations', {
         })
         associations = results
       }
-
       return associations;
     },
 

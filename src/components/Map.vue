@@ -8,6 +8,7 @@ import "maplibre-gl/dist/maplibre-gl.css";
 import { Vue, Component, Watch } from 'vue-facing-decorator'
 import { useAppStore } from '@/stores/app';
 import MapService from "@/services/MapService";
+import ResetMapExtentControl from "@/components/MapControls/ResetMapExtentControl";
 import { useAssociationStore } from "@/stores/associations";
 import type Association from "@/model/interfaces/Association";
 import { useFilterStore } from "@/stores/filters";
@@ -16,6 +17,7 @@ import { useFilterStore } from "@/stores/filters";
 export default class Map extends Vue {
   map: any = null
   geojsonData: any = null
+  defaultZoomExtent = null
 
   layers = {
     ASSOC: 'association',
@@ -27,11 +29,11 @@ export default class Map extends Vue {
 
   async mounted() {
     this.map = new maplibregl.Map({
-      container: 'map', // container id
-      style: 'https://api.maptiler.com/maps/dataviz/style.json?key=0tupl15DKhXOvwp27x8c', // style URL
-      // style: 'https://demotiles.maplibre.org/style.json', // style URL
-      center: [0, 0], // starting position [lng, lat]
-      zoom: 1, // starting zoom
+      container: 'map',
+      style: 'https://api.maptiler.com/maps/dataviz/style.json?key=0tupl15DKhXOvwp27x8c',
+      // style: 'https://demotiles.maplibre.org/style.json',
+      center: [0, 0],
+      zoom: 1,
     })
 
     this.setMapPadding()
@@ -43,7 +45,9 @@ export default class Map extends Vue {
     var nav = new maplibregl.NavigationControl({
       showCompass: false,
     });
+  
     this.map.addControl(nav, 'top-right');
+    this.map.addControl(new ResetMapExtentControl)
 
     // Add fullscreen control
     const body = document.querySelector('body')
@@ -52,14 +56,6 @@ export default class Map extends Vue {
     }
 
     this.initMapSyncFilter()
-  }
-
-  @Watch('activeAssociationId')
-  activeAssociationIdWatcher() {
-    if (this.activeAssociation !== null) {
-      this.zoomToAssociation(this.activeAssociation)
-    }
-    this.updatePins()
   }
 
   get filterPin() {
@@ -82,6 +78,14 @@ export default class Map extends Vue {
     }
   }
 
+  @Watch('activeAssociationId')
+  activeAssociationIdWatcher() {
+    if (this.activeAssociation !== null) {
+      this.zoomToAssociation(this.activeAssociation)
+    }
+    this.updatePins()
+  }
+
   @Watch('hoveredAssociationId')
   hoveredAssociationIdWatcher() {
     this.updatePins()
@@ -95,6 +99,11 @@ export default class Map extends Vue {
   @Watch("associations")
   associationsWatcher() {
     this.updateOscMap()
+  }
+
+  @Watch("triggerZoomReset")
+  zoomResetWatcher() {
+    this.fitBounds(true)
   }
 
   @Watch("filteredAssociationsWithoutMapFilter")
@@ -145,6 +154,10 @@ export default class Map extends Vue {
 
   get activeAssociation(): Association | null {
     return useAssociationStore().activeAssociation;
+  }
+
+  get triggerZoomReset(): boolean {
+    return useAppStore().triggerZoomReset;
   }
 
   get padding() {
@@ -264,6 +277,7 @@ export default class Map extends Vue {
         layout: {
           'text-field': '{point_count_abbreviated}',
           'text-size': 12,
+          'text-font': ["Open Sans Bold", "Arial Unicode MS Bold"]
         },
         paint: {
           'text-color': '#fff'
@@ -284,17 +298,17 @@ export default class Map extends Vue {
           layout: {
             'icon-image': this.filterPin,
             'icon-allow-overlap': true,
-            'text-field': ["step", ["zoom"], "", 8.5, ['get', 'name']],
-            'text-variable-anchor': ['top', 'bottom', 'left', 'right'],
-            'text-radial-offset': 1.8,
-            'text-size': 12,
-            'text-justify': 'auto',
-            'text-font': ["Arial Unicode MS Regular", "Open Sans Regular"]
+            // 'text-field': ["step", ["zoom"], "", 8.5, ['get', 'name']],
+            // 'text-variable-anchor': ['top', 'bottom', 'left', 'right'],
+            // 'text-radial-offset': 1.8,
+            // 'text-size': 12,
+            // 'text-justify': 'auto',
+            // 'text-font': ["Arial Unicode MS Regular", "Open Sans Regular"]
           },
-          paint: {
-            'text-halo-width': 2,
-            'text-halo-color': '#fff',
-          }
+          // paint: {
+          //   'text-halo-width': 2,
+          //   'text-halo-color': '#fff',
+          // }
         });
       })
     }
@@ -365,7 +379,7 @@ export default class Map extends Vue {
         coordinates[0] += e.lngLat.lng > coordinates[0] ? 360 : -360;
       }
 
-      const popupHtml = `<h3>${associationName}</h3><span>Plus d'infos</span>`
+      const popupHtml = `<h3>${associationName}</h3><span>Cliquez pour plus d'informations</span>`
 
       popup.setLngLat(coordinates).setHTML(popupHtml).addTo(this.map);
       popup.addClassName('show');
@@ -380,11 +394,17 @@ export default class Map extends Vue {
     });
   }
 
-  fitBounds() {
+  fitBounds(reset = false) {
     let features = this.geojson.features
     if (features.length) {
       const bounds = MapService.getBounds(features)
-      this.map.fitBounds(bounds, {
+
+      // Store default bounds
+      if (this.defaultZoomExtent === null) {
+        this.defaultZoomExtent = bounds
+      }
+
+      this.map.fitBounds(reset ? this.defaultZoomExtent : bounds, {
         padding: 30
       })
     }
@@ -422,9 +442,9 @@ export default class Map extends Vue {
     pointer-events: none;
     color: white;
     padding: .75rem 1rem;
-    max-width: 25rem;
+    max-width: 30rem;
     width: fit-content;
-    gap: 0.5rem;
+    gap: 0.25rem;
     display: flex;
     flex-flow: column nowrap;
     border-radius: 0;
@@ -435,12 +455,11 @@ export default class Map extends Vue {
       font-family: @font-secondary;
       font-weight: 400;
       line-height: 1.375rem;
-    }
-
-    span {
-      text-decoration: underline;
-      font-size: @font-s;
       font-weight: 600;
+    }
+    
+    span {
+      font-size: 0.75rem;
     }
   }
 
@@ -472,8 +491,38 @@ export default class Map extends Vue {
       height: @dim-map-btn-w;
       border-radius: 0.3125rem;
       border-width: 0;
+      position: relative;
+
+      &:hover {
+        &::after {
+          transform: scale(1);
+          opacity: 1;
+        }
+      }
+
+      &::after {
+        background: fade(@color-primary, 100%);
+        z-index: 8;
+        position: absolute;
+        border-radius: 4px;
+        padding: .25rem .5rem;
+        right: 100%;
+        top: 0;
+        bottom: 0;
+        margin: auto .5rem;
+        height: fit-content;
+        white-space: nowrap;
+        transform-origin: right center;
+        transform: scale(0);
+        opacity: 0;
+        pointer-events: none;
+        transition: all .15s ease-in;
+      }
 
       &.maplibregl-ctrl-zoom-in {
+        &::after {
+          content: "Zoomer";
+        }
         .maplibregl-ctrl-icon {
           background-image: url(../img/icons/mdi-plus.svg);
         }
@@ -482,15 +531,35 @@ export default class Map extends Vue {
       &.maplibregl-ctrl-zoom-out {
         order: -1;
 
+        &::after {
+          content: "Dézoomer";
+        }
         .maplibregl-ctrl-icon {
           background-image: url(../img/icons/mdi-minus.svg);
         }
+      }
+
+      &.maplibregl-ctrl-shrink::after {
+        content: "Quitter le plein écran";
+      }
+      &.maplibregl-ctrl-fullscreen::after {
+        content: "Ouvrir en plein écran";
       }
 
       &.maplibregl-ctrl-fullscreen,
       &.maplibregl-ctrl-shrink {
         .maplibregl-ctrl-icon {
           background-image: url(../img/icons/mdi-image-filter-center-focus-strong-outline.svg);
+        }
+      }
+
+      &.maplibregl-ctrl-zoom-extent {
+        &::after {
+          content: "Revenir à l'étendue globale";
+        }
+        .maplibregl-ctrl-icon {
+          background-image: url(../img/icons/mdi-zoom-out.svg);
+          background-size: 70%;
         }
       }
     }

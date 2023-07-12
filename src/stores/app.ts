@@ -8,6 +8,7 @@ export const useAppStore = defineStore('app', {
     isInfoPanelShown: false,
     isFiltersBarShown: false,
     isDownloadShown: false,
+    triggerZoomReset: false,
     downloadReports: [
       {
         name: "Résultats synthétiques Tunisie",
