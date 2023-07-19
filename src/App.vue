@@ -69,24 +69,20 @@ export default class App extends Vue {
       display: inline-flex;
       align-items: center;
       white-space: pre-wrap;
-      font-size: 0.95rem;
+      font-size: 1.05rem;
       padding: 1rem;
       color: @color-primary;
       background: white;
-      // color: white;
-      // background: @color-primary;
-      // background: @color-primary;
       z-index: 1;
       line-height: 1.4em;
       width: 100%;
       border-bottom: @mixin-divider-border;
-      // border-color: white;
       
       b {
         font-weight: 700;
       }
       img {
-        max-height: 100%;
+        height: 1.6rem;
         margin-right: .375rem;
       }
     }
