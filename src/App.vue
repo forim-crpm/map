@@ -1,12 +1,18 @@
 <template>
   <v-app class="App">
-    <AssociationBar class="App__ctn App__ctn--left" />
-    <div class="App__ctn App__ctn--right">
-      <FiltersBar />
-      <OSCMap />
+    <h1 class="App__title">
+      
+      <img :src="'./img/icons/mdi-travel.svg'" alt="Map icon">
+      Cartographie des <b><span class="hide-sm">Organisations de la Société Civile (</span>OSC<span class="hide-sm">)</span> africaines actives sur les enjeux migratoires</b></h1>
+    <div class="App__content">
+      <AssociationBar class="App__ctn App__ctn--left" />
+      <div class="App__ctn App__ctn--right">
+        <FiltersBar />
+        <OSCMap />
+      </div>
+      <AboutModal />
+      <RedirectionConfirmModal />
     </div>
-    <AboutModal />
-    <RedirectionConfirmModal />
   </v-app>
 </template>
 
@@ -42,13 +48,49 @@ export default class App extends Vue {
 
 .App {
   display: flex;
-  flex-flow: row nowrap;
+  flex-flow: column nowrap;
   height: 100%;
 
   .v-application__wrap {
     display: flex;
-    flex-flow: row nowrap;
+    flex-flow: column nowrap;
     height: 100%;
+    max-height: 100%;
+
+    
+    .App__content {
+      display: flex;
+      flex-flow: row nowrap;
+      flex: 1 0 auto;
+      height: 0;
+    }
+
+    h1.App__title {
+      display: inline-flex;
+      align-items: center;
+      white-space: pre-wrap;
+      font-size: 0.95rem;
+      padding: 1rem;
+      color: @color-primary;
+      background: white;
+      // color: white;
+      // background: @color-primary;
+      // background: @color-primary;
+      z-index: 1;
+      line-height: 1.4em;
+      width: 100%;
+      border-bottom: @mixin-divider-border;
+      // border-color: white;
+      
+      b {
+        font-weight: 700;
+      }
+      img {
+        max-height: 100%;
+        margin-right: .375rem;
+      }
+    }
+
   }
 
   .AssociationListItemsBar {

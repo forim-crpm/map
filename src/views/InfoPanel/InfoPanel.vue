@@ -109,7 +109,7 @@ export default class InfoPanel extends Vue {
   color: white;
   height: 100%;
   width: @dim-association-info-panel-w;
-  padding-top: 4rem;
+  padding-top: 3rem;
   padding-bottom: 1.25rem;
   position: relative;
   transition: all .3s ease-out;
