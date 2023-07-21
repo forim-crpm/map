@@ -549,7 +549,8 @@ export default class Map extends Vue {
       &.maplibregl-ctrl-fullscreen,
       &.maplibregl-ctrl-shrink {
         .maplibregl-ctrl-icon {
-          background-image: url(../img/icons/mdi-image-filter-center-focus-strong-outline.svg);
+          background-image: url(../img/icons/mdi-zoom-out.svg);
+          background-size: 70%;
         }
       }
 
@@ -558,8 +559,7 @@ export default class Map extends Vue {
           content: "Revenir à l'étendue globale";
         }
         .maplibregl-ctrl-icon {
-          background-image: url(../img/icons/mdi-zoom-out.svg);
-          background-size: 70%;
+          background-image: url(../img/icons/mdi-image-filter-center-focus-strong-outline.svg);
         }
       }
     }
