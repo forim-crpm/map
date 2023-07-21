@@ -199,6 +199,7 @@ export default class InfoPanel extends Vue {
       flex-flow: row wrap;
       justify-content: space-between;
       text-transform: uppercase;
+      position: relative;
       font-size: @font-s;
       font-weight: 700;
       letter-spacing: 0.07813rem;
@@ -211,7 +212,6 @@ export default class InfoPanel extends Vue {
         flex-flow: row wrap;
         align-items: center;
         gap: .5rem;
-        position: relative;
         cursor: pointer;
 
         .InfoPanel__costTooltip {

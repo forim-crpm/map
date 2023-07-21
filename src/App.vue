@@ -1,9 +1,6 @@
 <template>
   <v-app class="App">
-    <h1 class="App__title">
-      
-      <img :src="'./img/icons/mdi-travel.svg'" alt="Map icon">
-      Cartographie des <b><span class="hide-sm">Organisations de la Société Civile (</span>OSC<span class="hide-sm">)</span> africaines actives sur les enjeux migratoires</b></h1>
+    <h1 class="App__title">Cartographie des <b><span class="hide-sm">Organisations de la Société Civile (</span>OSC<span class="hide-sm">)</span> africaines actives sur les enjeux migratoires</b></h1>
     <div class="App__content">
       <AssociationBar class="App__ctn App__ctn--left" />
       <div class="App__ctn App__ctn--right">
@@ -66,9 +63,6 @@ export default class App extends Vue {
     }
 
     h1.App__title {
-      display: inline-flex;
-      align-items: center;
-      white-space: pre-wrap;
       font-size: 1.05rem;
       padding: 1rem;
       color: @color-primary;
@@ -80,10 +74,6 @@ export default class App extends Vue {
       
       b {
         font-weight: 700;
-      }
-      img {
-        height: 1.6rem;
-        margin-right: .375rem;
       }
     }
 
