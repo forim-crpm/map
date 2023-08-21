@@ -237,7 +237,7 @@ export default class Map extends Vue {
         cluster: true,
         clusterMaxZoom: 11,
         clusterRadius: 50,
-        attribution: 'Developped by <b><a href="https://cartong.org" target="_blank">CartONG</a></b>'
+        attribution: 'Developed by <b><a href="https://cartong.org" target="_blank">CartONG</a></b>'
       })
     } else {
       this.map.getSource(this.layers.ASSOC).setData(this.geojson)
