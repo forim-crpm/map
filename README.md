@@ -14,6 +14,8 @@ This template should help get you started developing with Vue 3 in Vite.
 `yarn build-only`
 `git add dist && git commit -m 'v0.1'`
 `git subtree push --prefix dist prod gh-pages`
+`git push prod main`
+`git push origin main`
 
 ## Recommended IDE Setup
 
