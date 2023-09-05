@@ -172,6 +172,8 @@ export default class AboutModal extends Vue {
       display: flex;
       flex-flow: column nowrap;
       padding: 2rem;
+      overflow-y: auto;
+      max-height: 66vh;
     }
 
     .AboutModal__ctn {

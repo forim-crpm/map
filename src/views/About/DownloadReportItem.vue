@@ -24,10 +24,10 @@ export default class DownloadReportItem extends Vue {
   flex-flow: row nowrap;
   justify-content: space-between;
   align-items: center;
-  min-height: 2.5rem;
+  min-height: 2rem;
   gap: .5rem;
   background: #f0f0f0;
-  padding: 1rem 2rem;
+  padding: .5rem .75rem;
   border-radius: 4px;
   text-decoration: none;
   transition: all .15s ease-in;
@@ -38,7 +38,7 @@ export default class DownloadReportItem extends Vue {
 
   h3 {
     font-weight: 700;
-    font-size: 1.2rem;
+    font-size: 1.1rem;
     color: @color-black-faded-3;
     text-decoration: none;
   }
