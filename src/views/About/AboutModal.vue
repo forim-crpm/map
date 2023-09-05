@@ -68,7 +68,7 @@ export default class AboutModal extends Vue {
       partners: [
         {
           name: 'FORIM',
-          logo: 'forim.png',
+          logo: 'forim-subtitle.jpg',
           link: 'https://forim.net/'
         }
       ]
@@ -249,6 +249,10 @@ export default class AboutModal extends Vue {
             flex-flow: row nowrap;
             align-items: center;
             gap: 2rem;
+
+            img {
+              max-height: 3rem;
+            }
           }
         }
       }

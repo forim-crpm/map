@@ -56,7 +56,7 @@ export default class AssociationBar extends Vue {
   }
 
   get logoPath() {
-    return './img/logos/forim-subtitle.jpg'
+    return './img/logo-crpm.svg'
   }
 
   get isFiltersBarShown() {
@@ -122,7 +122,7 @@ export default class AssociationBar extends Vue {
     }
 
     &--bottom {
-      gap: 1rem;
+      gap: 1.5rem;
       align-items: center;
     }
   }
