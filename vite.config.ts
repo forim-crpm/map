@@ -10,7 +10,7 @@ export default defineConfig({
   base: './',
   plugins: [vue(), vuetify({ autoImport: true }), sentryVitePlugin({
     org: "cartong-7594645d5",
-    project: "javascript-vue"
+    project: "grdr-crpm-javascript-vue"
   })],
   css: {
     preprocessorOptions: {
