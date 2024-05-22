@@ -289,6 +289,11 @@ export default class Map extends Vue {
       })
       this.map.loadImage(`./img/pins/pin_orange.png`, (error: any, res: any) => {
         if (error) throw error;
+
+        if (this.map.hasImage('marker')) {
+          this.map.removeImage('marker')
+        }
+
         this.map.addImage(`marker`, res);
         this.map.addLayer({
           id: this.layers.UNCLUSTERED_POINT,
