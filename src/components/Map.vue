@@ -30,8 +30,8 @@ export default class Map extends Vue {
   async mounted() {
     this.map = new maplibregl.Map({
       container: 'map',
-      style: 'https://api.maptiler.com/maps/dataviz/style.json?key=0tupl15DKhXOvwp27x8c',
-      // style: 'https://demotiles.maplibre.org/style.json',
+      style: 'https://api.maptiler.com/maps/019ce601-a718-7954-aadd-d6bac64feafa/?key=hWmLscZ9QYVzgx19LiOe',
+      //style: 'https://api.maptiler.com/maps/dataviz/style.json?key=0tupl15DKhXOvwp27x8c',
       center: [0, 0],
       zoom: 1,
     })
